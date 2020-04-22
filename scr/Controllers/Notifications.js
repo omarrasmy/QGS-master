@@ -172,7 +172,7 @@ exports.GetNumberOfNotification= async (req,res)=>{
  for (var i = 0; i < Notif.length; i++) {
      id = Notif[i].tokens.find(usertoken => usertoken.token == token)
      if (id) {
-         x = Notif[i].tokens.indexOf(id)
+         y = Notif[i].tokens.indexOf(id)
          NotifcationContent.push(Notif[i])
      }
  }
@@ -182,4 +182,6 @@ exports.GetNumberOfNotification= async (req,res)=>{
  else{
      return res.status(404).send({})
  }
+
+
 }
