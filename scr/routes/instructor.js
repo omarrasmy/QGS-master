@@ -3,9 +3,10 @@ const Auth=require('../middleware/Auth')
 const instructorController=require('../Controllers/instructor')
 const router = new express.Router()
 const Notify=require('../middleware/Notify')
+const multer=require('multer')
 
 // send Account request 
-router.post('/instructor/signup',instructorController.Send_SingnUp_Request)
+router.post('/instructor/signup', instructorController.idPic.single('idPic'),instructorController.Send_SingnUp_Request)
 
 //Login 
 router.post('/instructor/login',instructorController.Login)  
@@ -34,8 +35,11 @@ router.get('/instructor/me',Auth.Auth,Notify.GetNumberOfNotification,instructorC
   //fetch pic on web 
 router.get('/instructor/:id/pic',instructorController.fetcProfilePicture)
 
-router.patch('/instructor/editme:password',Auth.Auth,Notify.GetNumberOfNotification,instructorController.editInstructorProfile)
+  //fetch Id picture on web 
+router.get('/instructor/:id/picId',instructorController.fetchIdPicture)
 
+
+router.patch('/instructor/editme:password',Auth.Auth,Notify.GetNumberOfNotification,instructorController.editInstructorProfile)
 
 
 

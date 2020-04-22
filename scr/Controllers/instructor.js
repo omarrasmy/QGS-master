@@ -119,10 +119,30 @@ exports.enterResources = async (req, res) => {
 
     res.send('file uploaded')
 }
+exports.idPic=multer({
+    fileFilter(req, file, cb) {
+        if (!file.originalname.match(/\.(jpg|npg|jpeg)/)) {
+            return cb('please provide an image!')
+
+        }
+        cb(undefined, true)
+    }
+
+})
 exports.Send_SingnUp_Request = async (req, res) => {
     
     try {
-        const instructor = new Instructor(req.body)
+        const instructor = new Instructor({
+            Email:req.body.Email,
+            personal_ID:req.file.buffer,
+            Age:req.body.Age,
+            Address:req.body.Address,
+            Frist_Name:req.body.Frist_Name,
+            Last_Name:req.body.Last_Name
+
+            
+        })
+        
         await instructor.save()
         await Notification.addInstructorRequest('An User of email ' + req.body.Email + ' Add a Request', req.body.Email)
         const requestOptions = {
@@ -135,6 +155,19 @@ exports.Send_SingnUp_Request = async (req, res) => {
         res.status(500).send(e)
     }
 
+}
+exports.fetchIdPicture=async(req,res)=>{
+    try {
+        const instructor = await Instructor.findById(req.params.id)
+        if (!instructor || !instructor.personal_ID) {
+            throw new Error()
+        }
+        res.set('Content-Type', 'image/jpg')
+        res.send(instructor.personal_ID)
+    }
+    catch (e) {
+        res.status(404).send()
+    }
 }
 
 
