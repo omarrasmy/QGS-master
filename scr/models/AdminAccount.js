@@ -15,10 +15,6 @@ const AdminSchema = new mongoose.Schema({
         trim:true,
 
     },
-    token:{
-        type:String
-    },
-    
     tokens:[{
         token:{
             type:String,
@@ -37,7 +33,6 @@ AdminSchema.methods.GenerateTokens= async function(){
     const admin=this
     const token=jwt.sign({_id:admin._id.toString()},process.env.JWTSEC)
     admin.tokens=admin.tokens.concat({token})
-    admin.token=token
     await admin.save()
     return token
 

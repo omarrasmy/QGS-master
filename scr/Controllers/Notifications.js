@@ -154,19 +154,27 @@ exports.PushNotification = async (req, res) => {
 
 }
 
-function urlBase64ToUint8Array(base64String) {
-    const padding = "=".repeat((4 - base64String.length % 4) % 4);
-    const base64 = (base64String + padding)
-      .replace(/\-/g, "+")
-      .replace(/_/g, "/");
-  
-    const rawData = window.atob(base64);
-    const outputArray = new Uint8Array(rawData.length);
-  
-    for (let i = 0; i < rawData.length; ++i) {
-      outputArray[i] = rawData.charCodeAt(i);
-    }
-    return outputArray;
-  }
 
-
+exports.GetNumberOfNotification= async (req,res)=>{
+ // Get pushSubscription object
+ const token = req.header('Authorization').replace('Bearer ', '')
+ Notif = await Notification.find({})
+ if (!Notif) {
+     return res.status(404)
+ }
+ var id
+ var NotifcationContent =[]
+ for (var i = 0; i < Notif.length; i++) {
+     id = Notif[i].tokens.find(usertoken => usertoken.token == token)
+     if (id) {
+         x = Notif[i].tokens.indexOf(id)
+         NotifcationContent.push(Notif[i])
+     }
+ }
+ if(NotifcationContent.length != 0){
+     return res.status(202).send({Count:NotifcationContent.length})
+ }
+ else{
+     return res.status(404).send({})
+ }
+}

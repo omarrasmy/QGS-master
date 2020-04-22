@@ -20,5 +20,9 @@ router.get('/Instructor/SeenNotification/:id',Notifications.Auth,NotificationCon
 router.post('/Admin/subscribe',Notifications.AdminAuth,NotificationController.PushNotification)
 router.post('/Instructor/subscribe',Notifications.Auth,NotificationController.PushNotification)
 
+//Get Notification Number
+router.get('/Admin/GetNotificationLength',Notifications.AdminAuth,NotificationController.GetNumberOfNotification)
+router.get('/Instructor/GetNotificationLength',Notifications.Auth,NotificationController.GetNumberOfNotification)
+
 
 module.exports = router

@@ -52,26 +52,7 @@ exports.DeleteInstructorAccount=async(req,res)=>{
     }
 
 }
-exports.returnloggedadmin= async(req,res)=>{
-    const admin = await Admin.find({})
-    let token=[]
-    try{
-    for(var i = 0 ; i<admin.length;i++){
-        if(admin[i].token !== undefined){
-            token.push(admin[i].token)
-        }
-    }
 
-    if(token.length >0){
-    res.status(200).send({token})
-    }
-    else{
-        return res.status(404).send({})
-    }
-}catch(e){
-    res.status(404)
-}
-}
 exports.Login=async(req,res)=>{
     try{
         const admin = await Admin.findByEmailAndPass(req.body.email,req.body.password)
@@ -87,7 +68,6 @@ exports.LogOut=async(req,res)=>{
         req.admin.tokens=req.admin.tokens.filter((t)=>{
            return t.token!==req.token
         })
-        req.admin.token=undefined
         await req.admin.save()
         res.status(200).send('Logged Out successfully')
 
@@ -101,7 +81,6 @@ exports.LogOut=async(req,res)=>{
 exports.LogOutFromAllDevices=async(req,res)=>{
     try{
         req.admin.tokens=[]
-        req.admin.token=undefined
         await req.admin.save()
         res.status(200).send('Logged out from all devicess successfully')
 

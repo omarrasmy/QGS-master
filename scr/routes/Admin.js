@@ -52,7 +52,6 @@ router.get('/admin/instructors',AdminAuth.AdminAuth,Notify.GetNumberOfNotificati
 //delete profile pic
 router.post('/admin/profilepic/delete',AdminAuth.AdminAuth,Notify.GetNumberOfNotification,AdminController.deleteProfilepic)
 
-router.post('/admin/token',AdminController.returnloggedadmin)
 
 
 module.exports=router

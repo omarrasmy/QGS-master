@@ -86,11 +86,10 @@ http.listen(port, function () {
 
 
 io.on('connection',function(socket) {
-    console.log("connecting");
     
     socket.on('AddRequest', () => {
-        console.log("Emited")
         io.emit('Send');
+        io.emit('GetNumberOfNotification')
      });
   });
 
