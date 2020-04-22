@@ -19,7 +19,8 @@ const QuestionSchema = new mongoose.Schema({
         ref:'Instructor',
         required:false
 
-    },time: Date,
+    },
+    time: Date,
     public:{
         type:Boolean,
         default:false,
@@ -28,7 +29,6 @@ const QuestionSchema = new mongoose.Schema({
     domain:{
         type:mongoose.Schema.Types.ObjectId,
         ref:'Domain',
-        
     }
 
 },options)
