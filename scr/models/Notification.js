@@ -30,7 +30,7 @@ const NotificationSchema = new mongoose.Schema({
         default:false
     },
     date:{
-        default:date.format(new Date(),'YYYY/MM/DD HH:mm',false),
+        default:Date.now(),
         type:Date
     },
     pushFlag:{

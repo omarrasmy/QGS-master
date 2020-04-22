@@ -90,7 +90,8 @@ catch(e){
 exports.Add_Question_Manually= async(req,res)=>{
     try{
         //select domain
-     const domain=await DomainController.Selectdomain(req.body.domain_name)
+    console.log(req.body.domain_name)
+    const domain=await DomainController.Selectdomain(req.body.domain_name)
     const Type_of_Question= req.params.kind
 
     if(Type_of_Question==='mcq'){ 
@@ -237,43 +238,79 @@ exports.get_Questions=async(ids)=>{
 }
 //retrun all questions in questionbank
 exports.get_question_bank = async (req, res) => {
-    try {
-        const domain = req.params.domain_id
-        let QB;
-        if (domain === 'all') {
-             QB = await Question.find({ public: true }).populate({
-                path: 'domain',
-                select: 'domain_name'
-
-            })
-        }
-        else {
-            
-
-             QB = await Question.find({ public: true, domain: domain }).populate({
-                path: 'owner',
-                select: 'Email'
-            }).populate({
-                path: 'domain',
-                select: 'domain_name'
-
-            })
-        }
-        if (QB.length === 0) {
-            console.log('wrong')
-            res.status(404).send('No Questions in QB')
-        }
-        console.log(QB)
-        res.status(200).send(QB)
-
-    } catch (e) {
-        console.log(e)
-        res.status(500).send(e)
-
+    try{
+        let QB
+        let FilterQB
+    if(!req.body.hasOwnProperty("Domain_Name")){
+            QB=await getDomain('all')
+        }    
+    QB=await getDomain(req.body.Domain_Name)
+    if(QB===false){
+        return res.status(404).send({})
     }
+    
+    if(req.body.hasOwnProperty("Question_Type")){
+        FilterQB= QB.filter((element)=> element.kind ===req.body.Question_Type)
+    }    
+    if (FilterQB.length ===0){
+        return res.status(404).send({})
+    }
+    if(req.body.Search != '' && req.body.hasOwnProperty("Search")){
+        FilterQB = FilterQB.filter((element)=>element.Question.toLowerCase().includes(req.body.Search.toLowerCase())) 
+    }
+    console.log(FilterQB.length)
+    if (FilterQB.length ===0){
+        return res.status(404).send({})
+    }
+
+    let Questions=[]
+    const Count=req.params.count
+    if((req.params.verision+1)*Count > FilterQB.length){
+        for(var i = req.params.verision*Count ; i<FilterQB.length;i++){
+        Questions.push(FilterQB[i])
+        }
+    }
+    else{
+    for(var i = req.params.verision*Count ; i<Count;i++){
+        Questions.push(FilterQB[i])
+    }
+    }
+    res.status(202).send(Questions)
+}
+catch(e){
+    console.log(e)
+    res.status(500).send("can't connect now")
+}
 }
 
+getDomain= async (domainName)=>{
+    try {
+        let QB;
+            QB = await Question.find({ public: true }).populate({
+                path: 'domain',
+                select: 'domain_name'
+            }).populate({
+                path: 'owner',
+                select: 'Email'
+            })
+            if (QB.length === 0) {
+                console.log('wrong')
+                return false
+            }
+            if(domainName == 'all'){
+                return QB
+            }
+            DomainQB=await QB.filter((element)=> element.domain.domain_name === domainName)
+        if(DomainQB.length ===0){
+            return false
+        }
+        return DomainQB
+    } catch (e) {
+        console.log(e)
+        return false
+    }
 
+}
 exports.Add_Questions_to_QB=async(req,res)=>{
     try{
  // get all questions
