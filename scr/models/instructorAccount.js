@@ -27,10 +27,10 @@ const InstructorSchema =new mongoose.Schema(
                 }
             }
         },
-        // personal_ID:{
-        //     type:Buffer
+        personal_ID:{
+            type:Buffer
            
-        //     },
+            },
             pic:{
                 type:Buffer
             },
@@ -91,6 +91,7 @@ InstructorSchema.methods.toJSON= function(){
     const instructor = this   
     const instructorObject = instructor.toObject()
     delete instructorObject.Password
+    delete instructorObject.personal_ID
     return instructorObject
 }
 InstructorSchema.methods.GenerateTokens= async function(){
