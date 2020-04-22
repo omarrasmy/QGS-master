@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 const UniqueValidator = require('mongoose-unique-validator')
 const jwt= require('jsonwebtoken')
 const bcrypt=require('bcrypt')
+const date = require('date-and-time')
 const NotificationSchema = new mongoose.Schema({
     Sender_email:{
         required:true,
@@ -29,7 +30,7 @@ const NotificationSchema = new mongoose.Schema({
         default:false
     },
     date:{
-        default:Date.now(),
+        default:date.format(new Date(),'YYYY/MM/DD HH:mm',false),
         type:Date
     },
     pushFlag:{

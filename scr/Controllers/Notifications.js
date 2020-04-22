@@ -23,12 +23,14 @@ exports.addAdminNotifications = async (Description) => {
         }
 
         instructors.forEach((instructor) => {
-            new Notification({
+           x= new Notification({
                 Sender_email: 'Admin',
                 Reciver_Email: instructor.Email,
                 tokens: instructor.tokens,
                 Discription: Description,
-            }).save()
+            });
+            x.date.setHours(x.date.getHours()+2)
+            x.save()
         });
         return 1
     } catch (e) {
@@ -45,12 +47,14 @@ exports.addInstructorRequest = async (Description, Email) => {
             return 0
         }
         admins.forEach((admin) => {
-            new Notification({
+           x= new Notification({
                 Sender_email: Email,
                 Reciver_Email: admin.email,
                 tokens: admin.tokens,
                 Discription: Description,
-            }).save()
+            })
+            x.date.setHours(x.date.getHours()+2)
+            x.save()
         })
     
         return 1
@@ -78,6 +82,7 @@ exports.ListSpecificNotification = async (req, res) => {
         else if (user.length == 0) {
             return res.status(404).send('There is no Notification for that user')
         }
+        user.sort((a,b)=> new Date(b.date) - new Date(a.date))
         res.status(200).send(user)
     } catch (e) {
         console.log(e)
