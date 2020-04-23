@@ -121,17 +121,18 @@ exports.List_signUp_Requests=async(req,res)=>{
            return res.status(404).send('No requests')
         }
         let inst = []
-        const Count = req.params.count
         if(req.params.verision==='all' || req.params.count === 'all'){
             return res.status(200).send(instructors)
         }
-        if ((req.params.verision + 1) * Count > instructors.length) {
-            for (var i = req.params.verision * Count; i < instructors.length; i++) {
+        const Count = Number(req.params.count)
+        const verision =Number(req.params.verision)
+        if ((verision+1) * Count > instructors.length) {
+            for (var i = verision * Count; i < instructors.length; i++) {
                 inst.push(instructors[i])
             }
         }
         else {
-            for (var i = req.params.verision * Count; i < Count; i++) {
+            for (var i = verision * Count; i < (verision+1)*Count; i++) {
                 inst.push(instructors[i])
             }
         }

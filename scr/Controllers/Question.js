@@ -271,14 +271,15 @@ exports.get_question_bank = async (req, res) => {
         }
 
         let Questions = []
-        const Count = req.params.count
-        if ((req.params.verision + 1) * Count > FilterQB.length) {
-            for (var i = req.params.verision * Count; i < FilterQB.length; i++) {
+        const Count = Number(req.params.count)
+        const verision =Number(req.params.verision)
+        if ((verision + 1) * Count > FilterQB.length) {
+            for (var i = verision * Count; i < FilterQB.length; i++) {
                 Questions.push(FilterQB[i])
             }
         }
         else {
-            for (var i = req.params.verision * Count; i < Count; i++) {
+            for (var i = verision * Count; i < (verision+1) *Count; i++) {
                 Questions.push(FilterQB[i])
             }
         }
