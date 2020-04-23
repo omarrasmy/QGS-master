@@ -17,9 +17,9 @@ router.patch('/question/edit/:id',Auth,QuestionController.EditQuestion)
 router.get('/question/List',Auth,QuestionController.List_Questions)
 
 //get QB -user-
-router.get('/questionbank/:count/:verision',Auth,QuestionController.get_question_bank)
+router.get('/questionbank/:count/:verision',QuestionController.get_question_bank)
  //get QB
-router.get('/admin/questionbank/:count/:verision',AdminAuth,QuestionController.get_question_bank)
+router.post('/admin/questionbank/:count/:verision',QuestionController.get_question_bank)
 
 //add questions to QB
 router.post('/questionbank/add',Auth,QuestionController.Add_Questions_to_QB)
