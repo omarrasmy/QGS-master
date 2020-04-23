@@ -293,14 +293,39 @@ exports.get_question_bank = async (req, res) => {
 
 getDomain = async (domainName) => {
     try {
-        let QB;
-        QB = await Question.find({ public: true }).populate({
+        let QB3;
+        QB3 = await Question.find({ public: true,kind:{$ne:"Complete"} }).populate({
             path: 'domain',
             select: 'domain_name'
         }).populate({
             path: 'owner',
             select: 'Email'
         })
+        let QB =JSON.parse(JSON.stringify(QB3))
+        for(var i =0 ;i<QB.length;i++){
+            let MyDistructor=[]
+            if(Array.isArray(QB[i].distructor)){
+                for(var n = 0 ;n<QB[i].distructor.length;n++){
+                    x=await Distructor.findById(QB[i].distructor[n])
+                    MyDistructor.push(x.distructor)
+                }
+            }
+            else{
+                x=await Distructor.findById(QB[i].distructor)
+                MyDistructor = x.distructor
+            }
+            QB[i].distructor=MyDistructor
+        }
+        QB2 = await Question.find({ public: true,kind:"Complete" }).populate({
+            path: 'domain',
+            select: 'domain_name'
+        }).populate({
+            path: 'owner',
+            select: 'Email'
+        })
+        //console.log(QB)
+        
+        QB2.forEach((element)=>{QB.push(JSON.parse(JSON.stringify(element)))})
         if (QB.length === 0) {
             console.log('wrong')
             return false
