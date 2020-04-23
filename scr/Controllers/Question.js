@@ -130,7 +130,7 @@ exports.Add_Question_Manually = async (req, res) => {
                 path: 'owner',
                 select: 'Email'
             }).populate({
-                path: 'distructors',
+                path: 'distructor',
                 select: 'distructor'
             })
 
@@ -253,11 +253,10 @@ exports.get_question_bank = async (req, res) => {
         if (QB === false) {
             return res.status(404).send({})
         }
-
         if (req.body.Question_Type === 'all') {
             FilterQB = QB
         }
-        else {
+        else if (req.body.hasOwnProperty("Question_Type")) {
             FilterQB = QB.filter((element) => element.kind === req.body.Question_Type)
         }
         if (FilterQB.length === 0) {
