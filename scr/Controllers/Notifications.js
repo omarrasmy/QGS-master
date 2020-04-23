@@ -85,6 +85,9 @@ exports.ListSpecificNotification = async (req, res) => {
         user.sort((a,b)=> new Date(b.date) - new Date(a.date))
         let Notify = []
         const Count = req.params.count
+        if(req.params.verision==='all' || req.params.count === 'all'){
+            return res.status(200).send(user)
+        }
         if ((req.params.verision + 1) * Count > user.length) {
             for (var i = req.params.verision * Count; i < user.length; i++) {
                 Notify.push(user[i])

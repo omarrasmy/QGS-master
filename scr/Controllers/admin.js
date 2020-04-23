@@ -122,6 +122,9 @@ exports.List_signUp_Requests=async(req,res)=>{
         }
         let inst = []
         const Count = req.params.count
+        if(req.params.verision==='all' || req.params.count === 'all'){
+            return res.status(200).send(instructors)
+        }
         if ((req.params.verision + 1) * Count > instructors.length) {
             for (var i = req.params.verision * Count; i < instructors.length; i++) {
                 inst.push(instructors[i])
