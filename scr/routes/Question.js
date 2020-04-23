@@ -26,6 +26,6 @@ router.post('/questionbank/add',Auth,QuestionController.Add_Questions_to_QB)
 
 //select question from question bank
 
-router.get('/questionbank/:domain_id/:id',Auth,QuestionController.select_Question_from_QuestionBank)
+router.post('/questionbank/:domain_id/:id',Auth,QuestionController.select_Question_from_QuestionBank)
 
 module.exports=router

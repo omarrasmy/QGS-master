@@ -120,7 +120,19 @@ exports.List_signUp_Requests=async(req,res)=>{
         if(instructors.length===0){
            return res.status(404).send('No requests')
         }
-        res.status(200).send(instructors)
+        let inst = []
+        const Count = req.params.count
+        if ((req.params.verision + 1) * Count > instructors.length) {
+            for (var i = req.params.verision * Count; i < instructors.length; i++) {
+                inst.push(instructors[i])
+            }
+        }
+        else {
+            for (var i = req.params.verision * Count; i < Count; i++) {
+                inst.push(instructors[i])
+            }
+        }
+        res.status(200).send(inst)
 
     }catch(e){
         res.status(500).send(e)
