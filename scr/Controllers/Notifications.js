@@ -23,13 +23,13 @@ exports.addAdminNotifications = async (Description) => {
         }
 
         instructors.forEach((instructor) => {
-           x= new Notification({
+            x = new Notification({
                 Sender_email: 'Admin',
                 Reciver_Email: instructor.Email,
                 tokens: instructor.tokens,
                 Discription: Description,
             });
-            x.date.setHours(x.date.getHours()+2)
+            x.date.setHours(x.date.getHours() + 2)
             x.save()
         });
         return 1
@@ -47,16 +47,16 @@ exports.addInstructorRequest = async (Description, Email) => {
             return 0
         }
         admins.forEach((admin) => {
-           x= new Notification({
+            x = new Notification({
                 Sender_email: Email,
                 Reciver_Email: admin.email,
                 tokens: admin.tokens,
                 Discription: Description,
             })
-            x.date.setHours(x.date.getHours()+2)
+            x.date.setHours(x.date.getHours() + 2)
             x.save()
         })
-    
+
         return 1
     } catch (e) {
         console.log(e)
@@ -82,13 +82,13 @@ exports.ListSpecificNotification = async (req, res) => {
         else if (user.length == 0) {
             return res.status(404).send('There is no Notification for that user')
         }
-        user.sort((a,b)=> new Date(b.date) - new Date(a.date))
+        user.sort((a, b) => new Date(b.date) - new Date(a.date))
         let Notify = []
-        if(req.params.verision==='all' || req.params.count === 'all'){
+        if (req.params.verision === 'all' || req.params.count === 'all') {
             return res.status(200).send(user)
         }
         const Count = Number(req.params.count)
-        const verision =Number(req.params.verision)
+        const verision = Number(req.params.verision)
         if ((verision + 1) * Count > user.length) {
             console.log(user.length)
             for (var i = verision * Count; i < user.length; i++) {
@@ -96,10 +96,10 @@ exports.ListSpecificNotification = async (req, res) => {
             }
         }
         else {
-            for (var i = verision * Count; i < (verision+1)*Count; i++) {
+            for (var i = verision * Count; i < (verision + 1) * Count; i++) {
                 Notify.push(user[i])
             }
-        }     
+        }
         res.status(200).send(Notify)
     } catch (e) {
         console.log(e)
@@ -165,7 +165,7 @@ exports.PushNotification = async (req, res) => {
             res.status(201).json({});
 
             // Create payload
-            const payload = JSON.stringify({ title: "Quizy", Description: Notification.Description , url : "http://localhost:3000/adminHome/adminInstractors" });
+            const payload = JSON.stringify({ title: "Quizy", Description: Notification.Description, url: "http://localhost:3000/adminHome/adminInstractors" });
             // Pass object into sendNotification
             webpush
                 .sendNotification(subscription, payload)
@@ -177,28 +177,28 @@ exports.PushNotification = async (req, res) => {
 }
 
 
-exports.GetNumberOfNotification= async (req,res)=>{
- // Get pushSubscription object
- const token = req.header('Authorization').replace('Bearer ', '')
- Notif = await Notification.find({})
- if (!Notif) {
-     return res.status(404)
- }
- var id
- var NotifcationContent =[]
- for (var i = 0; i < Notif.length; i++) {
-     id = Notif[i].tokens.find(usertoken => usertoken.token == token)
-     if (id) {
-         y = Notif[i].tokens.indexOf(id)
-         NotifcationContent.push(Notif[i])
-     }
- }
- if(NotifcationContent.length != 0){
-     return res.status(202).send({Count:NotifcationContent.length})
- }
- else{
-     return res.status(404).send({})
- }
+exports.GetNumberOfNotification = async (req, res) => {
+    // Get pushSubscription object
+    const token = req.header('Authorization').replace('Bearer ', '')
+    Notif = await Notification.find({})
+    if (!Notif) {
+        return res.status(404)
+    }
+    var id
+    var NotifcationContent = []
+    for (var i = 0; i < Notif.length; i++) {
+        id = Notif[i].tokens.find(usertoken => usertoken.token == token)
+        if (id) {
+            y = Notif[i].tokens.indexOf(id)
+            NotifcationContent.push(Notif[i])
+        }
+    }
+    if (NotifcationContent.length != 0) {
+        return res.status(202).send({ Count: NotifcationContent.length })
+    }
+    else {
+        return res.status(404).send({})
+    }
 
 
 }
