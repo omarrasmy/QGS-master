@@ -41,7 +41,9 @@ router.get('/instructor/:id/picId',instructorController.fetchIdPicture)
 
 router.patch('/instructor/editme:password',Auth.Auth,Notify.GetNumberOfNotification,instructorController.editInstructorProfile)
 
+//get Instructor Questions 
 
+router.get('/instructor/getmyQuestions/:count/:verision',Auth.Auth,instructorController.getMyQuestions)
 
 
  

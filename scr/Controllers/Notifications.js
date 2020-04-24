@@ -2,6 +2,7 @@ const webpush = require("web-push");
 const Instructor = require('../models/instructorAccount')
 const Notification = require('../models/Notification')
 const Admin = require('../models/AdminAccount')
+var datetime = require('node-datetime');
 
 
 // Set static path
@@ -28,6 +29,7 @@ exports.addAdminNotifications = async (Description) => {
                 Reciver_Email: instructor.Email,
                 tokens: instructor.tokens,
                 Discription: Description,
+                date:datetime.create().now()
             });
             x.date.setHours(x.date.getHours() + 2)
             x.save()
@@ -52,6 +54,7 @@ exports.addInstructorRequest = async (Description, Email) => {
                 Reciver_Email: admin.email,
                 tokens: admin.tokens,
                 Discription: Description,
+                date:datetime.create().now()
             })
             x.date.setHours(x.date.getHours() + 2)
             x.save()

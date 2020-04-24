@@ -209,22 +209,45 @@ exports.List_Question = async () => {
 
 }
 //List Questions route 
-exports.List_Questions = async (req, res) => {
+exports.List_Questions = async (id,domain) => {
     try {
-        const Array_of_Question = []
-        const Questions = await Question.find({ owner: req.instructor._id })
+
+        const Questions = await Question.find({ owner: id }).populate({
+            path:'domain',
+            select:'domain_name'
+        })
+        
         if (Questions.length === 0) {
-            res.status(404).send('No added Question ')
+            return false
         }
-        for (i = 0; i < Questions.length; i++) {
-            Array_of_Question[i] = Questions[i].Question
+        let Q =JSON.parse(JSON.stringify(Questions))
+        
+        if(domain !='all'){
+            Q = await Q.filter((element) => element.domain.domain_name === domain)
         }
-
-        res.status(200).send(Array_of_Question)
-
+        if(Q.length===0){
+            return false
+        }
+        for(var i =0 ; i<Q.length;i++){
+            let distructors=[]
+            if(Q[i].kind != 'Complete'){
+                if(Array.isArray(Q[i].distructor)){
+                    for (var n =0 ;n<Q[i].distructor.length;n++){
+                        x=await Distructor.findById(Q[i].distructor[n])
+                        distructors.push(x.distructor)    
+                    }
+                }
+                else{
+                    x=await Distructor.findById(Q[i].distructor)
+                    distructors = x.distructor
+                }
+                Q[i].distructor=distructors
+            }
+        }
+        return Q.sort((a,b)=> new Date(b.time) - new Date(a.time))
     } catch (e) {
         console.log(e)
-        res.status(500).send(e)
+        return false
     }
 
 

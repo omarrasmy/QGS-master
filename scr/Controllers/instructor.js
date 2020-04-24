@@ -4,7 +4,8 @@ const multer = require('multer')
 const bcrypt = require('bcrypt');
 const Request = require('../models/DomainRequests')
 const Notification = require('./Notifications')
-
+var datetime = require('node-datetime');
+const Question=require('./Question')
 
 exports.Login = async (req, res) => {
 
@@ -138,9 +139,9 @@ exports.Send_SingnUp_Request = async (req, res) => {
             Age:req.body.Age,
             Address:req.body.Address,
             Frist_Name:req.body.Frist_Name,
-            Last_Name:req.body.Last_Name
+            Last_Name:req.body.Last_Name,
+            RequestDate:datetime.create().now()
 
-            
         })
         
         await instructor.save()
@@ -214,6 +215,62 @@ exports.x = async (id) => {
     })
 
 
+
+}
+
+exports.getMyQuestions= async (req,res)=>{
+    try{
+    const token= req.header('Authorization').replace('Bearer ','')
+    const instructor = await Instructor.findOne({'tokens.token':token})
+    let Q
+    if (!req.body.hasOwnProperty("Domain_Name")) {
+        Q = await Question.List_Questions(instructor._id,'all')
+    }
+    else{
+    Q= await Question.List_Questions(instructor._id,req.body.domain)
+    }
+    const Count = Number(req.params.count)
+    const verision =Number(req.params.verision)
+    
+    
+    if (Q === false) {
+        return res.status(404).send({})
+    }
+    if (req.body.Question_Type === 'all') {
+        FilterQB = Q
+    }
+    else {
+        FilterQB = Q.filter((element) => element.kind === req.body.Question_Type)
+    }
+    if (FilterQB.length === 0) {
+        return res.status(404).send([])
+    }
+    if (req.body.Search != '' && req.body.hasOwnProperty("Search")) {
+        FilterQB = FilterQB.filter((element) => element.Question.toLowerCase().includes(req.body.Search.toLowerCase()))
+    }
+    if (FilterQB.length === 0) {
+        return res.status(404).send([])
+    }
+    res.status(202).send(this.listSpecificItems(Count,verision,FilterQB)) 
+    }
+    catch(e){
+        res.status(500).send("can't connect  with server")
+    }
+}
+
+exports.listSpecificItems=(Count,verision,FilterQB)=>{
+    let Questions = []
+    if ((verision + 1) * Count > FilterQB.length) {
+        for (var i = verision * Count; i < FilterQB.length; i++) {
+            Questions.push(FilterQB[i])
+        }
+    }
+    else {
+        for (var i = verision * Count; i < (verision+1) *Count; i++) {
+            Questions.push(FilterQB[i])
+        }
+    }
+    return Questions
 
 }
 
