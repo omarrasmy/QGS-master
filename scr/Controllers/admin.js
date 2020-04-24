@@ -122,7 +122,7 @@ exports.List_signUp_Requests=async(req,res)=>{
         }
         let inst = []
         if(req.params.verision==='all' || req.params.count === 'all'){
-            return res.status(200).send(instructors)
+            return res.status(200).send(instructors.sort((a,b)=> new Date(b.RequestDate) - new Date(a.RequestDate)))
         }
         const Count = Number(req.params.count)
         const verision =Number(req.params.verision)
@@ -136,7 +136,7 @@ exports.List_signUp_Requests=async(req,res)=>{
                 inst.push(instructors[i])
             }
         }
-        res.status(200).send(inst)
+        res.status(200).send(inst.sort((a,b)=> new Date(b.RequestDate) - new Date(a.RequestDate)))
 
     }catch(e){
         res.status(500).send(e)
