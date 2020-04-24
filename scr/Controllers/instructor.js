@@ -4,6 +4,7 @@ const multer = require('multer')
 const bcrypt = require('bcrypt');
 const Request = require('../models/DomainRequests')
 const Notification = require('./Notifications')
+var datetime = require('node-datetime');
 
 
 exports.Login = async (req, res) => {
@@ -138,9 +139,9 @@ exports.Send_SingnUp_Request = async (req, res) => {
             Age:req.body.Age,
             Address:req.body.Address,
             Frist_Name:req.body.Frist_Name,
-            Last_Name:req.body.Last_Name
+            Last_Name:req.body.Last_Name,
+            RequestDate:datetime.create().now()
 
-            
         })
         
         await instructor.save()
