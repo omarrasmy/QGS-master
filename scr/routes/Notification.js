@@ -6,11 +6,11 @@ const NotificationController=require('../Controllers/Notifications')
 
 
 //List Admin Notification
-router.get('/Admin/ListMyNotification/:Reciver_Email',Notifications.AdminAuth,NotificationController.ListSpecificNotification)
+router.get('/Admin/ListMyNotification/:Reciver_Email/:count/:verision',Notifications.AdminAuth,NotificationController.ListSpecificNotification)
 
 
 //List Instructor Notification
-router.get('/Instructor/ListMyNotification/:Reciver_Email',Notifications.Auth,NotificationController.ListSpecificNotification)
+router.get('/Instructor/ListMyNotification/:Reciver_Email/:count/:verision',Notifications.Auth,NotificationController.ListSpecificNotification)
 
 //Seen Notification
 router.get('/Admin/SeenNotification/:id',Notifications.AdminAuth,NotificationController.SeenNotification)

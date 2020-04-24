@@ -25,7 +25,7 @@ router.post('/admin/logoutAll',AdminAuth.AdminAuth,Notify.GetNumberOfNotificatio
 router.patch('/admin/me:password',AdminAuth.AdminAuth,Notify.GetNumberOfNotification,AdminController.editAdminProfile)
 
 // Show Sign up requests
-router.get('/admin/singuprequests',AdminAuth.AdminAuth,Notify.GetNumberOfNotification,AdminController.List_signUp_Requests)
+router.get('/admin/singuprequests/:count/:verision',AdminAuth.AdminAuth,Notify.GetNumberOfNotification,AdminController.List_signUp_Requests)
 
 //select request
 router.get('/admin/singuprequests/:id',AdminAuth.AdminAuth,Notify.GetNumberOfNotification,AdminController.Select_SingUp_Request)

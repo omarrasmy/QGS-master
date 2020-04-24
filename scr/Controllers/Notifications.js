@@ -83,7 +83,24 @@ exports.ListSpecificNotification = async (req, res) => {
             return res.status(404).send('There is no Notification for that user')
         }
         user.sort((a,b)=> new Date(b.date) - new Date(a.date))
-        res.status(200).send(user)
+        let Notify = []
+        if(req.params.verision==='all' || req.params.count === 'all'){
+            return res.status(200).send(user)
+        }
+        const Count = Number(req.params.count)
+        const verision =Number(req.params.verision)
+        if ((verision + 1) * Count > user.length) {
+            console.log(user.length)
+            for (var i = verision * Count; i < user.length; i++) {
+                Notify.push(user[i])
+            }
+        }
+        else {
+            for (var i = verision * Count; i < (verision+1)*Count; i++) {
+                Notify.push(user[i])
+            }
+        }     
+        res.status(200).send(Notify)
     } catch (e) {
         console.log(e)
         return res.status(500).send(e)

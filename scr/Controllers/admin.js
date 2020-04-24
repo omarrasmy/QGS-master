@@ -120,7 +120,23 @@ exports.List_signUp_Requests=async(req,res)=>{
         if(instructors.length===0){
            return res.status(404).send('No requests')
         }
-        res.status(200).send(instructors)
+        let inst = []
+        if(req.params.verision==='all' || req.params.count === 'all'){
+            return res.status(200).send(instructors)
+        }
+        const Count = Number(req.params.count)
+        const verision =Number(req.params.verision)
+        if ((verision+1) * Count > instructors.length) {
+            for (var i = verision * Count; i < instructors.length; i++) {
+                inst.push(instructors[i])
+            }
+        }
+        else {
+            for (var i = verision * Count; i < (verision+1)*Count; i++) {
+                inst.push(instructors[i])
+            }
+        }
+        res.status(200).send(inst)
 
     }catch(e){
         res.status(500).send(e)

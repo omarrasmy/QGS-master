@@ -256,29 +256,30 @@ exports.get_question_bank = async (req, res) => {
         if (req.body.Question_Type === 'all') {
             FilterQB = QB
         }
-        else if (req.body.hasOwnProperty("Question_Type")) {
+        else {
             FilterQB = QB.filter((element) => element.kind === req.body.Question_Type)
         }
         if (FilterQB.length === 0) {
-            return res.status(404).send({})
+            return res.status(404).send([])
         }
         if (req.body.Search != '' && req.body.hasOwnProperty("Search")) {
             FilterQB = FilterQB.filter((element) => element.Question.toLowerCase().includes(req.body.Search.toLowerCase()))
         }
         console.log(FilterQB.length)
         if (FilterQB.length === 0) {
-            return res.status(404).send({})
+            return res.status(404).send([])
         }
 
         let Questions = []
-        const Count = req.params.count
-        if ((req.params.verision + 1) * Count > FilterQB.length) {
-            for (var i = req.params.verision * Count; i < FilterQB.length; i++) {
+        const Count = Number(req.params.count)
+        const verision =Number(req.params.verision)
+        if ((verision + 1) * Count > FilterQB.length) {
+            for (var i = verision * Count; i < FilterQB.length; i++) {
                 Questions.push(FilterQB[i])
             }
         }
         else {
-            for (var i = req.params.verision * Count; i < Count; i++) {
+            for (var i = verision * Count; i < (verision+1) *Count; i++) {
                 Questions.push(FilterQB[i])
             }
         }
@@ -322,7 +323,6 @@ getDomain = async (domainName) => {
             path: 'owner',
             select: 'Email'
         })
-        //console.log(QB)
         
         QB2.forEach((element)=>{QB.push(JSON.parse(JSON.stringify(element)))})
         if (QB.length === 0) {
