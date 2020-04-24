@@ -241,7 +241,7 @@ exports.List_Questions = async (id,domain) => {
                     x=await Distructor.findById(Q[i].distructor)
                     distructors = x.distructor
                 }
-                Q.distructor=distructors
+                Q[i].distructor=distructors
             }
         }
         return Q.sort((a,b)=> new Date(b.time) - new Date(a.time))
