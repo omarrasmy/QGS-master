@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt');
 const Request = require('../models/DomainRequests')
 const Notification = require('./Notifications')
 var datetime = require('node-datetime');
-const Question=require('./Question')
+const Question = require('./Question')
 
 exports.Login = async (req, res) => {
 
@@ -15,7 +15,7 @@ exports.Login = async (req, res) => {
 
         if (instructor.accepted === true) {
             const token = await instructor.GenerateTokens()
-            Notification.updateTokens(req.body.Email,token)
+            Notification.updateTokens(req.body.Email, token)
             return res.send({ instructor, token })
         }
         res.send('wait untill receving gmail confrimation mail')
@@ -120,7 +120,7 @@ exports.enterResources = async (req, res) => {
 
     res.send('file uploaded')
 }
-exports.idPic=multer({
+exports.idPic = multer({
     fileFilter(req, file, cb) {
         if (!file.originalname.match(/\.(jpg|png|jpeg)/)) {
             return cb('please provide an image!')
@@ -131,24 +131,24 @@ exports.idPic=multer({
 
 })
 exports.Send_SingnUp_Request = async (req, res) => {
-    
+
     try {
         const instructor = new Instructor({
-            Email:req.body.Email,
-            personal_ID:req.file.buffer,
-            Age:req.body.Age,
-            Address:req.body.Address,
-            Frist_Name:req.body.Frist_Name,
-            Last_Name:req.body.Last_Name,
-            RequestDate:datetime.create().now()
+            Email: req.body.Email,
+            personal_ID: req.file.buffer,
+            Age: req.body.Age,
+            Address: req.body.Address,
+            Frist_Name: req.body.Frist_Name,
+            Last_Name: req.body.Last_Name,
+            RequestDate: datetime.create().now()
 
         })
-        
+
         await instructor.save()
         await Notification.addInstructorRequest('An User of email ' + req.body.Email + ' Add a Request', req.body.Email)
         const requestOptions = {
             method: 'Get',
-            headers: { 'Content-Type': 'application/json'},
+            headers: { 'Content-Type': 'application/json' },
         };
         res.status(200).send('your request is sent .. please check your response mail')
     } catch (e) {
@@ -157,7 +157,7 @@ exports.Send_SingnUp_Request = async (req, res) => {
     }
 
 }
-exports.fetchIdPicture=async(req,res)=>{
+exports.fetchIdPicture = async (req, res) => {
     try {
         const instructor = await Instructor.findById(req.params.id)
         if (!instructor || !instructor.personal_ID) {
@@ -180,10 +180,12 @@ exports.editInstructorProfile = async (req, res) => {
 
     const isMatch = await bcrypt.compare(oldPassword, hashed)
     if (!isMatch) {
+        console.log('please enter your password correctly')
         return res.status(401).send('please enter your password correctly')
     }
-    const IsValidUpdate=updates.every((update)=>allowed.includes(update))
+    const IsValidUpdate = updates.every((update) => allowed.includes(update))
     if (!IsValidUpdate) {
+        console.log('Not exisited properity')
         return res.status(401).send({ error: 'Not exisited properity' })
     }
     try {
@@ -218,47 +220,48 @@ exports.x = async (id) => {
 
 }
 
-exports.getMyQuestions= async (req,res)=>{
-    try{
-    const token= req.header('Authorization').replace('Bearer ','')
-    const instructor = await Instructor.findOne({'tokens.token':token})
-    let Q
-    if (!req.body.hasOwnProperty("Domain_Name")) {
-        Q = await Question.List_Questions(instructor._id,'all')
-    }
-    else{
-    Q= await Question.List_Questions(instructor._id,req.body.domain)
-    }
-    const Count = Number(req.params.count)
-    const verision =Number(req.params.verision)
+exports.getMyQuestions = async (req, res) => {
     
-    
-    if (Q === false) {
-        return res.status(404).send({})
+    try {
+        const token = req.header('Authorization').replace('Bearer ', '')
+        const instructor = await Instructor.findOne({ 'tokens.token': token })
+        let Q
+        if (req.body.hasOwnProperty("Domain_Name") === 'all' || req.body.Domain_Name === 'all') {
+            Q = await Question.List_Questions(instructor._id, 'all')
+        }
+        else {
+            Q = await Question.List_Questions(instructor._id, req.body.domain)
+        }
+        const Count = Number(req.params.count)
+        const verision = Number(req.params.verision)
+
+
+        if (Q === false) {
+            return res.status(404).send({})
+        }
+        if (req.body.Question_Type === 'all') {
+            FilterQB = Q
+        }
+        else {
+            FilterQB = Q.filter((element) => element.kind === req.body.Question_Type)
+        }
+        if (FilterQB.length === 0) {
+            return res.status(404).send([])
+        }
+        if (req.body.Search != '' && req.body.hasOwnProperty("Search")) {
+            FilterQB = FilterQB.filter((element) => element.Question.toLowerCase().includes(req.body.Search.toLowerCase()))
+        }
+        if (FilterQB.length === 0) {
+            return res.status(404).send([])
+        }
+        res.status(202).send(this.listSpecificItems(Count, verision, FilterQB))
     }
-    if (req.body.Question_Type === 'all') {
-        FilterQB = Q
-    }
-    else {
-        FilterQB = Q.filter((element) => element.kind === req.body.Question_Type)
-    }
-    if (FilterQB.length === 0) {
-        return res.status(404).send([])
-    }
-    if (req.body.Search != '' && req.body.hasOwnProperty("Search")) {
-        FilterQB = FilterQB.filter((element) => element.Question.toLowerCase().includes(req.body.Search.toLowerCase()))
-    }
-    if (FilterQB.length === 0) {
-        return res.status(404).send([])
-    }
-    res.status(202).send(this.listSpecificItems(Count,verision,FilterQB)) 
-    }
-    catch(e){
+    catch (e) {
         res.status(500).send("can't connect  with server")
     }
 }
 
-exports.listSpecificItems=(Count,verision,FilterQB)=>{
+exports.listSpecificItems = (Count, verision, FilterQB) => {
     let Questions = []
     if ((verision + 1) * Count > FilterQB.length) {
         for (var i = verision * Count; i < FilterQB.length; i++) {
@@ -266,7 +269,7 @@ exports.listSpecificItems=(Count,verision,FilterQB)=>{
         }
     }
     else {
-        for (var i = verision * Count; i < (verision+1) *Count; i++) {
+        for (var i = verision * Count; i < (verision + 1) * Count; i++) {
             Questions.push(FilterQB[i])
         }
     }

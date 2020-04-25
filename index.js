@@ -86,7 +86,6 @@ http.listen(port, function () {
 
 
 io.on('connection',function(socket) {
-    
     socket.on('AddRequest', () => {
         io.emit('Send');
         io.emit('GetNumberOfNotification')

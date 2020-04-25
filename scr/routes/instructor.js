@@ -43,7 +43,7 @@ router.patch('/instructor/editme:password',Auth.Auth,Notify.GetNumberOfNotificat
 
 //get Instructor Questions 
 
-router.get('/instructor/getmyQuestions/:count/:verision',Auth.Auth,instructorController.getMyQuestions)
+router.post('/instructor/getmyQuestions/:count/:verision',Auth.Auth,instructorController.getMyQuestions)
 
 
  
