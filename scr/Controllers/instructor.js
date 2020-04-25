@@ -110,16 +110,21 @@ exports.resource = multer({
         fieldSize: 1000000
     },
     fileFilter(req, file, cb) {
-        if (!file.originalname.match(/\.(doc|docx|pdf)/)) {
+        if (!file.originalname.match('pdf')) {
             return cb(new Error('please upload a PDF or word File!'))
         }
         cb(undefined, true)
     }
 })
 exports.enterResources = async (req, res) => {
-
-    res.send('file uploaded')
+         let x= req.file.path
+         let path='.\\'+x+'.pdf'
+         req.instructor.uploaded_resource.push(path)
+         req.instructor.save()
+        
+    res.send(x)
 }
+
 exports.idPic=multer({
     fileFilter(req, file, cb) {
         if (!file.originalname.match(/\.(jpg|png|jpeg)/)) {

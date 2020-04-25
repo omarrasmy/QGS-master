@@ -61,22 +61,25 @@ const InstructorSchema =new mongoose.Schema(
                 type:Boolean,
                 default:false
             },
-            RequestDate:{
-                type:Date,
-                required:true
-            }
-            ,tokens:[{
-                token:{
-                    type:String,
-                    required:true
-                }
-            }],
-            requests:[
-                {
+               requests: {
                     type:mongoose.Schema.Types.ObjectId,
                     ref:'Request'
-                }
-            ]
+                },
+                RequestDate:{
+                    type:Date
+                },tokens:[
+                    {
+                        token:{
+                            type:String,
+                            required:true
+                        }
+                    }
+                ],uploaded_resource:[
+                    {
+                        type:String
+                    }
+                ]
+            
 
 })
 InstructorSchema.plugin(uniqueValidator)

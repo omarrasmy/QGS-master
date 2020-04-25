@@ -4,10 +4,10 @@ const router=new express.Router()
 const RequestController= require('../Controllers/DomainRequests')
 
 // send a domain request
-router.post('/domain/request',Auth.Auth,RequestController.Send_Domain_Request )
+router.post('/domain/request',Auth.Auth,RequestController.material.single('material'),RequestController.Send_Domain_Request )
 
 //vote on a request
-router.post('/domain/vote/:requested_domain_id',Auth.Auth,RequestController.Vote_on_Request)
+// router.post('/domain/vote/:requested_domain_id',Auth.Auth,RequestController.Vote_on_Request)
 
 //show all Requests 
 router.get('/domain/requests/list',Auth.Auth,RequestController.Show_domain_Requests)

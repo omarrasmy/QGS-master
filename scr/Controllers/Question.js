@@ -92,19 +92,20 @@ exports.Add_Question_Manually = async (req, res) => {
         console.log(req.body.domain_name)
         const domain = await DomainController.Selectdomain(req.body.domain_name)
         const Type_of_Question = req.params.kind
+        // Adding Distructors 
+        const Array_of_distructors = []
+        const Add_Distructors = async () => {
+            const dis = req.body.add_distructors
+            for (i = 0; i <req.body.add_distructors.length; i++) {
+                const distructor = await DistructorController.addDistructor(dis[i])
+                Array_of_distructors.push(distructor)
+            }
+
+            return Array_of_distructors
+        }
 
         if (Type_of_Question === 'mcq') {
-            // Adding Distructors 
-            const Array_of_distructors = []
-            const Add_Distructors = async () => {
-                const dis = req.body.add_distructors
-                for (i = 0; i < 3; i++) {
-                    const distructor = await DistructorController.addDistructor(dis[i])
-                    Array_of_distructors.push(distructor)
-                }
-
-                return Array_of_distructors
-            }
+            
             // filling mcq Question Object
             const mcq = new MCQ({
                 ...req.body,
@@ -152,7 +153,7 @@ exports.Add_Question_Manually = async (req, res) => {
 
             const question = new TrueOrFalse({
                 ...req.body,
-                distructor: await DistructorController.addDistructor(req.body.add_distructor),
+                distructor:  await Add_Distructors(),
                 time: Date.now(),
                 owner: req.instructor._id,
                 domain
@@ -211,7 +212,7 @@ exports.List_Question = async () => {
 //List Questions route 
 exports.List_Questions = async (id,domain) => {
     try {
-
+       
         const Questions = await Question.find({ owner: id }).populate({
             path:'domain',
             select:'domain_name'
