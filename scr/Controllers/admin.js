@@ -136,7 +136,7 @@ exports.List_signUp_Requests=async(req,res)=>{
                 inst.push(instructors[i])
             }
         }
-        res.status(200).send(inst.sort((a,b)=> new Date(b.RequestDate) - new Date(a.RequestDate)))
+        res.status(200).send(inst.sort((a,b)=> new Date(a.RequestDate) - new Date(b.RequestDate)))
 
     }catch(e){
         res.status(500).send(e)
