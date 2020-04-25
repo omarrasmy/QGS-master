@@ -122,7 +122,7 @@ exports.enterResources = async (req, res) => {
 }
 exports.idPic=multer({
     fileFilter(req, file, cb) {
-        if (!file.originalname.match(/\.(jpg|npg|jpeg)/)) {
+        if (!file.originalname.match(/\.(jpg|png|jpeg)/)) {
             return cb('please provide an image!')
 
         }
