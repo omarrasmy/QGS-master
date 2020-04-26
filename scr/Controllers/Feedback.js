@@ -43,7 +43,7 @@ exports.List_Feedbacks=async(req,res)=>{
         feedbacks=feedback.filter((e)=>e.creator.Email)
         }
         else if(req.hasOwnProperty('instructor')){
-        feedbacks=await Feedback.find({creator:req.instructor._id})
+        feedbacks=await Feedback.find({creator:req.instructor._id}).populate('creator','Email')
         }
         else{
         feedbacks= await Feedback.find({}).populate('creator','Email')
