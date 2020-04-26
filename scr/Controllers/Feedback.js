@@ -29,7 +29,7 @@ exports.DeleteMyfeeback=async (req,res)=>{
         let feedback=await Feedback.findByIdAndDelete(req.params.id)
         x=await Notification.DeleteAdminNotification("filterNotify",req.params.id)
         console.log(x)  
-        res.status(200).send(feedback.deletedCount)
+        res.status(200).send("deleted")
     }catch(e){
         console.log(e)
         res.status(500).send(e)
@@ -38,7 +38,7 @@ exports.DeleteMyfeeback=async (req,res)=>{
 exports.List_Feedbacks=async(req,res)=>{
     try{
         let feedbacks
-        if(req.body.hasOwnProperty('Email')){
+        if(req.body.hasOwnProperty('Email') && req.body.Email != ''){
         let feedback= await Feedback.find({}).populate('creator','Email')
         feedbacks=feedback.filter((e)=>e.creator.Email)
         }
@@ -53,7 +53,7 @@ exports.List_Feedbacks=async(req,res)=>{
         }
         feedbacks.sort((a,b)=>new Date(a.date)-(b.date))
         feeds=instructor.listSpecificItems(Number(req.params.count),Number(req.params.verision),feedbacks)
-        res.status(200).send("deleted")
+        res.status(200).send(feeds)
 
     }catch(e){
         console.log(e)
