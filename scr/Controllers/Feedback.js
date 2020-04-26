@@ -1,11 +1,14 @@
 const Feedback=require('../models/Feedback')
 const Notification=require('./Notifications')
 const instructor=require('./instructor')
+var datetime = require('node-datetime');
+
 exports.write_feedback=async(req,res)=>{
     try{
         const feedback= new Feedback({
             ...req.body,
-            creator:req.instructor._id
+            creator:req.instructor._id,
+            date:datetime.create().now(),
         })
         await feedback.save()
         x=await Feedback.findById(feedback._id).populate({
