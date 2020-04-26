@@ -7,9 +7,9 @@ const Auth=require('../middleware/Auth')
 //Write(send) feedback
 router.post('/feedback/write',Auth.Auth,FeedbackController.write_feedback)
 //receive feedback
-router.get('/set/feedbacks/:count/:verision',Auth.Auth,FeedbackController.List_Feedbacks)
+router.post('/set/feedbacks/:count/:verision',Auth.Auth,FeedbackController.List_Feedbacks)
 
-router.get('/admin/set/feedbacks/:count/:verision',Auth.AdminAuth,FeedbackController.List_Feedbacks)
+router.post('/admin/set/feedbacks/:count/:verision',Auth.AdminAuth,FeedbackController.List_Feedbacks)
 
 //delete Feedback
 router.delete('/delete/feedback/:id',Auth.Auth,FeedbackController.DeleteMyfeeback)
