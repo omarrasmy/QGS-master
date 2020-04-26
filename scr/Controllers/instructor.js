@@ -20,6 +20,7 @@ exports.Login = async (req, res) => {
         }
         res.send('wait untill receving gmail confrimation mail')
     } catch (e) {
+        console.log(e)
         res.status(404).send(e)
     }
 
