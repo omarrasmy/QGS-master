@@ -13,20 +13,14 @@ const RequestSchema=new mongoose.Schema({
        required:true,
        trim:true,
        ref:'Instructor'
-   },
-   votes:{
-       type:Number,
-       default:1
-       
-
-   },
-   voters:[{
+   },description:{
        type:String,
-      
+       required:true
+   },material:{
+       type:String
+   }
 
-   }]
-
-})
+},{timestamps:true})
 RequestSchema.plugin(UniqueValidator)
 
 RequestSchema.methods.toJSON=function(){

@@ -5,11 +5,9 @@ const options = { discriminatorKey: 'kind' }
 
 const TrueOrFalse = Question.discriminator('T/F', new mongoose.Schema({
     keyword: { type: String, required: true },
-    distructor: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Distructor',
+    distructor: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Distructor' }]
 
-    }, state: {
+    , state: {
         type: Boolean,
         required: true,
 

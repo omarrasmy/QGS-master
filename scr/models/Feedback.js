@@ -11,6 +11,10 @@ const FeedbackSchema= new mongoose.Schema({
         type:mongoose.Schema.Types.ObjectId,
         required:true,
         ref:'Instructor'
+    },
+    date:{
+        type:Date,
+        required:true
     }
 })
 FeedbackSchema.methods.toJSON=function(){

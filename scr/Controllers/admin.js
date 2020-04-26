@@ -40,7 +40,8 @@ exports.DeleteInstructorAccount=async(req,res)=>{
         if(! instructor){
            return res.status(404).send('no such an instructor')
         }
-        x=await Notification.DeleteAdminNotification(instructor.Email)
+        x=await Notification.DeleteAdminNotification("Sender_email",instructor.Email)
+        await Notification.DeleteAdminNotification("Reciver_Email",instructor.Email)
         if(x ===0 ){
            return res.status(401).send('Can not Delete Notification')
         }
@@ -178,7 +179,7 @@ exports.Select_SingUp_Request=async(req,res)=>{
           
         SendWelcomMessage(admin.email,instructor.Email,instructor.Frist_Name,pass)
         instructor.accepted='true'
-        x=await Notification.DeleteAdminNotification(instructor.Email)
+        x=await Notification.DeleteAdminNotification("filterNotify",req.params.id)
         if(x ===0 ){
             throw new Error('Can not Delete Notification')
         }
@@ -209,7 +210,7 @@ exports.Reject_instructor_request=async(req,res)=>{
 
         }
         
-            x=await Notification.DeleteAdminNotification(instructor.Email)
+            x=await Notification.DeleteAdminNotification("Sender_email",instructor.Email)
             if(x ===0 ){
                 throw new Error('Can not Delete Notification')
             }

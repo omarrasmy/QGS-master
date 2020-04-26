@@ -60,6 +60,8 @@ exports.deleteAccount = async (req, res) => {
     try {
         const instructor = req.instructor
         await instructor.remove()
+        x=await Notification.DeleteAdminNotification("Sender_email",instructor.Email)
+        await Notification.DeleteAdminNotification("Reciver_Email",instructor.Email)
         CancelationMail(instructor.Email, instructor.Frist_Name)
         res.send('successfully removed')
 
@@ -110,15 +112,19 @@ exports.resource = multer({
         fieldSize: 1000000
     },
     fileFilter(req, file, cb) {
-        if (!file.originalname.match(/\.(doc|docx|pdf)/)) {
+        if (!file.originalname.match('pdf')) {
             return cb(new Error('please upload a PDF or word File!'))
         }
         cb(undefined, true)
     }
 })
 exports.enterResources = async (req, res) => {
-
-    res.send('file uploaded')
+         let x= req.file.path
+         let path='.\\'+x+'.pdf'
+         req.instructor.uploaded_resource.push(path)
+         req.instructor.save()
+        
+    res.send(x)
 }
 exports.idPic = multer({
     fileFilter(req, file, cb) {
@@ -145,7 +151,7 @@ exports.Send_SingnUp_Request = async (req, res) => {
         })
 
         await instructor.save()
-        await Notification.addInstructorRequest('An User of email ' + req.body.Email + ' Add a Request', req.body.Email)
+        await Notification.addInstructorRequest('An User of email ' + req.body.Email + ' Add a Request', req.body.Email,instructor._id)
         const requestOptions = {
             method: 'Get',
             headers: { 'Content-Type': 'application/json' },

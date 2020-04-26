@@ -16,7 +16,7 @@ webpush.setVapidDetails(
 );
 
 
-exports.addAdminNotifications = async (Description) => {
+exports.addAdminNotifications = async (Description,filterNotify) => {
     try {
         const instructors = await Instructor.find({ accepted: true })
         if (instructors.length === 0) {
@@ -29,7 +29,8 @@ exports.addAdminNotifications = async (Description) => {
                 Reciver_Email: instructor.Email,
                 tokens: instructor.tokens,
                 Discription: Description,
-                date:datetime.create().now()
+                date:datetime.create().now(),
+                filterNotify
             });
             x.date.setHours(x.date.getHours() + 2)
             x.save()
@@ -41,7 +42,7 @@ exports.addAdminNotifications = async (Description) => {
     }
 }
 
-exports.addInstructorRequest = async (Description, Email) => {
+exports.addInstructorRequest = async (Description, Email,filterNotify) => {
     try {
         const instructors = await Instructor.find({ Email })
         const admins = await Admin.find({})
@@ -54,7 +55,8 @@ exports.addInstructorRequest = async (Description, Email) => {
                 Reciver_Email: admin.email,
                 tokens: admin.tokens,
                 Discription: Description,
-                date:datetime.create().now()
+                date:datetime.create().now(),
+                filterNotify
             })
             x.date.setHours(x.date.getHours() + 2)
             x.save()
@@ -67,9 +69,9 @@ exports.addInstructorRequest = async (Description, Email) => {
     }
 }
 
-exports.DeleteAdminNotification = async (Sender_email) => {
+exports.DeleteAdminNotification = async (typ,value) => {
     try {
-        x = await Notification.deleteMany({ Sender_email })
+        x = await Notification.deleteMany({[typ]:value })
         return x.deletedCount
     } catch (e) {
         return 0

@@ -35,6 +35,10 @@ const NotificationSchema = new mongoose.Schema({
     pushFlag:{
         default:false,
         type:Boolean
+    },
+    filterNotify:{
+        type:mongoose.Schema.Types.ObjectId,
+        required:true
     }
     
 })
