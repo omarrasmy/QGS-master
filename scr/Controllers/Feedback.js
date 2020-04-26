@@ -6,7 +6,7 @@ var datetime = require('node-datetime');
 exports.write_feedback = async (req, res) => {
     try {
         const feedback = new Feedback({
-            ...req.body,
+            feedback:req.body.feedback,
             creator: req.instructor._id,
             date: datetime.create().now(),
         })
@@ -45,13 +45,8 @@ exports.List_Feedbacks = async (req, res) => {
             let feedback = await Feedback.find({}).populate('creator', 'Email')
             feedbacks = feedback.filter((e) => e.creator.Email)
         }
-<<<<<<< HEAD
         else if(req.hasOwnProperty('instructor')){
-        feedbacks=await Feedback.find({creator:req.instructor._id}).populate('creator','Email')
-=======
-        else if (req.hasOwnProperty('instructor')) {
-            feedbacks = await Feedback.find({ creator: req.instructor._id }).populate('creator', 'Email')
->>>>>>> f94d848339c11da38aa2e00b7634ed90cbd36d36
+        feedbacks=await Feedback.find({creator:req.instructor._id}).populate('creator', 'Email')
         }
         else {
             feedbacks = await Feedback.find({}).populate('creator', 'Email')
@@ -61,6 +56,7 @@ exports.List_Feedbacks = async (req, res) => {
         }
         feedbacks.sort((a, b) => new Date(a.date) - (b.date))
         feeds = instructor.listSpecificItems(Number(req.params.count), Number(req.params.verision), feedbacks)
+        feeds=JSON.parse(JSON.stringify(feeds))
         res.status(200).send(feeds)
 
     } catch (e) {

@@ -12,7 +12,6 @@ exports.Login = async (req, res) => {
     try {
         const instructor = await Instructor.findByCredentials(req.body.Email, req.body.Password)
 
-
         if (instructor.accepted === true) {
             const token = await instructor.GenerateTokens()
             Notification.updateTokens(req.body.Email, token)
@@ -20,6 +19,7 @@ exports.Login = async (req, res) => {
         }
         res.send('wait untill receving gmail confrimation mail')
     } catch (e) {
+        console.log(e)
         res.status(404).send(e)
     }
 

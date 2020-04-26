@@ -19,8 +19,8 @@ const FeedbackSchema= new mongoose.Schema({
 })
 FeedbackSchema.methods.toJSON=function(){
     const FeedbackObject=this.toObject()
-    delete FeedbackObject._id
-    delete FeedbackObject.creator._id
+   // delete FeedbackObject._id
+   // delete FeedbackObject.creator._id
     delete FeedbackObject.__v
     
     return FeedbackObject

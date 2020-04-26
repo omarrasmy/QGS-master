@@ -103,10 +103,10 @@ InstructorSchema.methods.toJSON = function () {
 InstructorSchema.methods.GenerateTokens = async function () {
     const instructor = this
     const token = await jwt.sign({ _id: instructor._id.toString() }, process.env.JWTSEC)
-    
+
     instructor.tokens = instructor.tokens.concat({ token })
     await instructor.save()
-    
+
     return token
 }
 InstructorSchema.statics.findByCredentials = async (Email, Password) => {
@@ -126,6 +126,7 @@ InstructorSchema.statics.findByCredentials = async (Email, Password) => {
 
 InstructorSchema.pre('save', async function (next) {
     const instructor = this
+    console.log(instructor.Password)
     if (instructor.isModified('Password')) {
         instructor.Password = await bcrypt.hash(instructor.Password, 8)
     }
