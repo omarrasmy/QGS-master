@@ -17,9 +17,6 @@ exports.Add_New_Exam=async(req,res)=>{
             owner: req.instructor._id,
             domain,
             Questions:await QuestionController.Get_ids(Selected)
-            
-            
-            
         })
 
         await exam.save()

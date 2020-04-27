@@ -43,7 +43,7 @@ const ExamSchema= new mongoose.Schema({
 })
 ExamSchema.methods.toJSON=function(){
 const examObject= this.toObject()
-delete examObject._id
+//delete examObject._id
 delete examObject.__v
 return examObject
 }

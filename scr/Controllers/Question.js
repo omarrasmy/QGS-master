@@ -85,6 +85,233 @@ exports.DeleteQuestion = async (req, res) => {
 
     }
 }
+exports.checkQuestion=async (type,question)=>{
+    Q=await Question.find({Question:question.Question})
+    if(Q.length >0){
+        Q=JSON.parse(JSON.stringify(Q))
+        let QP=[]
+        for(var i =0 ;i<Q.length;i++){
+            if(Q[i].public===true){
+                QP.push(Q[i])
+            }
+        }
+        if(QP.length >0){
+            if(type === 'complete'){
+                for(var i=0;i<QP.length;i++){
+                   if(QP[i].kind ==="Complete"){
+                    return false
+                   }
+                }
+                return true
+            }
+            else{
+                if(type === 'trueorfalse'){
+                    if(question.hasOwnProperty('distructor')){
+                    for(var i =0;i<QP.length;i++){
+                    if(QP[i].kind === 'T/F'){
+                    if(QP[i].hasOwnProperty('distructor')){
+                    if(QP[i].distructor.length===0){
+                        continue              
+                          }
+                     var dist= await Distructor.findById(QP[i].distructor) 
+                     dist=JSON.parse(JSON.stringify(dist))
+                     if(dist.distructor.toLowerCase() === question.distructor[0].toLowerCase()){
+                         return false
+                         } 
+                        }
+                    }
+                }
+                return true
+            }
+            else{
+                for(var i =0;i<QP.length;i++){
+                    if(QP[i].kind==='T/F'){
+                        if(QP[i].distructor.length ===0){
+                            return false
+                        }
+                    }
+                }
+                return true
+            }
+            }
+            else if(type === 'mcq'){
+                question.distructor=question.distructor.map(v => v.toLowerCase());
+                for(var i =0;i<QP.length;i++){
+                    if(QP[i].kind==='MCQ'){
+                        var c=0
+                        for(var n=0;n<QP[i].distructor.length;n++){
+                            var dist= await Distructor.findById(QP[i].distructor[n]) 
+                            dist=JSON.parse(JSON.stringify(dist))
+                            if(question.distructor.includes(dist.distructor.toLowerCase())){
+                                 c=c+1
+                            }
+                        }
+                        if(c == question.distructor.length){
+                            return false
+                        }
+                    }
+                }
+                return true    
+            }
+            return false
+            }
+        }
+        return true
+    }
+    return true
+}
+//Add Reapeted Questions 
+exports.Add_Repeated_Questions= async (req,res)=>{
+    let check
+    let Type_of_Question=req.params.kind
+    const domain = await DomainController.Selectdomain(req.body.domain_name)
+    const Array_of_distructors = []
+        const Add_Distructors = async () => {
+            const dis = req.body.add_distructors
+            for (i = 0; i <req.body.add_distructors.length; i++) {
+                const distructor = await DistructorController.addDistructor(dis[i])
+                Array_of_distructors.push(distructor)
+            }
+
+            return Array_of_distructors
+        }
+    if(req.body.hasOwnProperty('add_distructors')){
+        check = await this.checkQuestion(Type_of_Question,{Question:req.body.Question,distructor:req.body.add_distructors})
+    }
+    else{
+        check = await this.checkQuestion(Type_of_Question,{Question:req.body.Question})
+    }
+    if(!check){
+        let Q
+        if(Type_of_Question === 'complete'){
+            Type_of_Question = 'Complete'
+            Q=await Question.findOne({Question:req.body.Question,kind:Type_of_Question,public:true,owner: req.instructor._id})
+            if(!Q){
+            Q2=await Question.findOne({Question:req.body.Question,kind:Type_of_Question,public:false,owner: req.instructor._id})
+            if(Q2){
+                return res.status(300).send({'massage':"you have already this Question in Your Collection"})
+            }
+            Q=JSON.parse(JSON.stringify(Q))
+            const complete = new Complete({
+                ...req.body,
+                public:false,
+                time: Date.now(),
+                owner: req.instructor._id,
+                domain,
+            })
+            await complete.save()
+            res.status(201).send(complete)
+        }
+        return res.status(300).send({'massage':"you have already this Question in Your Collection"})
+        }
+        else{
+            let distract
+
+                if (Type_of_Question === 'mcq') {
+                    Type_of_Question='MCQ'
+                    QA=await Question.findOne({Question:req.body.Question,kind:Type_of_Question,public:true,owner: req.instructor._id})
+                    Q2=await Question.findOne({Question:req.body.Question,kind:Type_of_Question,public:false,owner: req.instructor._id})
+                    if(Q2  || QA){
+                        console.log('in condition')
+                        return res.status(300).send({'massage':"you have already this Question in Your Collection"})      
+                          }
+                    const mcq = new MCQ({
+                        ...req.body,
+                        distructor: await Add_Distructors(),
+                        time: Date.now(),
+                        public:false,
+                        owner: req.instructor._id,
+                        domain
+        
+                    })
+                    // saving question in database
+                    await mcq.save()
+        
+                    // Linking distructors to that question
+                    Array_of_distructors.forEach((d) => {
+                        DistructorController.LinkDistructorToQuestion(d, mcq._id)
+                    })
+        
+                    // retrun question after populating it
+                    const m = await MCQ.findOne({ _id: mcq.id }).populate({
+                        path: 'domain',
+                        select: 'domain_name'
+                    }).populate({
+                        path: 'owner',
+                        select: 'Email'
+                    }).populate({
+                        path: 'distructor',
+                        select: 'distructor'
+                    })
+        
+                    return res.status(201).send(m)
+                }
+                else if (Type_of_Question === 'trueorfalse') {
+                    Type_of_Question='T/F'
+                    QA=await Question.findOne({Question:req.body.Question,kind:Type_of_Question,public:true,owner: req.instructor._id})
+                    Q2=await Question.findOne({Question:req.body.Question,kind:Type_of_Question,public:false,owner: req.instructor._id})
+                    if(Q2 || QA){
+                        console.log('in condition')
+                        return res.status(300).send({'massage':"you have already this Question in Your Collection"})      
+                          }
+                    let question
+                    if(req.body.hasOwnProperty('add_distructors')){
+                    question = new TrueOrFalse({
+                        ...req.body,
+                        distructor:  await Add_Distructors(),
+                        time: Date.now(),
+                        owner: req.instructor._id,
+                        domain
+        
+                    })
+                }
+                else{
+                    question = new TrueOrFalse({
+                        ...req.body,
+                        time: Date.now(),
+                        owner: req.instructor._id,
+                        domain
+                    })
+                }
+                    x=await question.save()
+
+                    let m 
+                    if(req.body.hasOwnProperty('add_distructors')){
+                    await DistructorController.LinkDistructorToQuestion(question.distructor, question._id)
+                    m = await TrueOrFalse.findOne({ _id: question._id }).populate({
+                        path: 'domain',
+                        select: 'domain_name'
+                    }).populate({
+                        path: 'owner',
+                        select: 'Email'
+                    }).populate({
+                        path: 'distructor',
+                        select: 'distructor'
+                    })    
+                }
+        
+                    // retrun question after populating it
+                    else{
+                    m = await TrueOrFalse.findOne({ _id: question._id }).populate({
+                        path: 'domain',
+                        select: 'domain_name'
+                    }).populate({
+                        path: 'owner',
+                        select: 'Email'
+                    }).populate({
+                        path: 'distructor',
+                        select: 'distructor'
+                    })
+                }
+                    return res.status(201).send(m)
+                }
+            
+        return res.status(404).send({'massage':"not Found In QuestionBank"})
+        }
+    }
+    return res.status(500).send({'massage':'no Question At QuestionBank as this'})
+}
+
 //Add Question Manually
 exports.Add_Question_Manually = async (req, res) => {
     try {
@@ -103,7 +330,14 @@ exports.Add_Question_Manually = async (req, res) => {
 
             return Array_of_distructors
         }
-
+        let check
+        if(req.body.hasOwnProperty('add_distructors')){
+            check = await this.checkQuestion(Type_of_Question,{Question:req.body.Question,distructor:req.body.add_distructors})
+        }
+        else{
+            check = await this.checkQuestion(Type_of_Question,{Question:req.body.Question})
+        }
+        if(check){
         if (Type_of_Question === 'mcq') {
             
             // filling mcq Question Object
@@ -150,8 +384,9 @@ exports.Add_Question_Manually = async (req, res) => {
         }
 
         if (Type_of_Question === 'trueorfalse') {
-
-            const question = new TrueOrFalse({
+            let question
+            if(req.body.hasOwnProperty('add_distructors')){
+            question = new TrueOrFalse({
                 ...req.body,
                 distructor:  await Add_Distructors(),
                 time: Date.now(),
@@ -159,10 +394,34 @@ exports.Add_Question_Manually = async (req, res) => {
                 domain
 
             })
+        }
+        else{
+            question = new TrueOrFalse({
+                ...req.body,
+                time: Date.now(),
+                owner: req.instructor._id,
+                domain
+            })
+        }
             await question.save()
+            let m 
+            if(req.body.hasOwnProperty('add_distructors')){
             await DistructorController.LinkDistructorToQuestion(question.distructor, question._id)
+            m = await TrueOrFalse.findOne({ _id: question._id }).populate({
+                path: 'domain',
+                select: 'domain_name'
+            }).populate({
+                path: 'owner',
+                select: 'Email'
+            }).populate({
+                path: 'distructor',
+                select: 'distructor'
+            })    
+        }
+
             // retrun question after populating it
-            const m = await TrueOrFalse.findOne({ _id: question._id }).populate({
+            else{
+            m = await TrueOrFalse.findOne({ _id: question._id }).populate({
                 path: 'domain',
                 select: 'domain_name'
             }).populate({
@@ -172,8 +431,13 @@ exports.Add_Question_Manually = async (req, res) => {
                 path: 'distructor',
                 select: 'distructor'
             })
+        }
             return res.status(201).send(m)
         }
+    }
+    else{
+        res.status(300).send({'massage':'The Question is Already Found On QuestionBank'})
+    }
     } catch (e) {
         console.log(e)
         res.status(500).send(e)

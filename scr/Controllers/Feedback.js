@@ -47,7 +47,6 @@ exports.List_Feedbacks = async (req, res) => {
 
         }
         else if (req.body.hasOwnProperty('Email') && req.body.Email == '') {
-            console.log("Dddddddddddd")
             feedbacks = await Feedback.find({}).populate('creator', 'Email')
 
         }

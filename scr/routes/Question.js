@@ -7,6 +7,9 @@ const QuestionController=require('../Controllers/Question')
 
 // Add Question Manually
 router.post('/question/add/:kind',Auth,QuestionController.Add_Question_Manually)
+//repeate Question
+router.post('/question/addRepeated/:kind',Auth,QuestionController.Add_Repeated_Questions)
+
 
 //Delete Question
 router.delete('/Question/delete/:id',Auth,QuestionController.DeleteQuestion)
