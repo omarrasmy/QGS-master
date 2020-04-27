@@ -87,6 +87,8 @@ exports.DeleteQuestion = async (req, res) => {
 }
 exports.checkQuestion=async (type,question)=>{
     Q=await Question.find({Question:question.Question})
+    console.log(question.id)
+    Qprivate=await Question.find({Question:question.Question,owner:question.id})
     if(Q.length >0){
         Q=JSON.parse(JSON.stringify(Q))
         let QP=[]
@@ -95,6 +97,10 @@ exports.checkQuestion=async (type,question)=>{
                 QP.push(Q[i])
             }
         }
+        for(var i=0 ; i<Qprivate.length;i++){
+            QP.push(Qprivate[i])
+        }
+        console.log(Qprivate)
         if(QP.length >0){
             if(type === 'complete'){
                 for(var i=0;i<QP.length;i++){
@@ -176,10 +182,10 @@ exports.Add_Repeated_Questions= async (req,res)=>{
             return Array_of_distructors
         }
     if(req.body.hasOwnProperty('add_distructors')){
-        check = await this.checkQuestion(Type_of_Question,{Question:req.body.Question,distructor:req.body.add_distructors})
+        check = await this.checkQuestion(Type_of_Question,{Question:req.body.Question,distructor:req.body.add_distructors,id:req.instructor._id})
     }
     else{
-        check = await this.checkQuestion(Type_of_Question,{Question:req.body.Question})
+        check = await this.checkQuestion(Type_of_Question,{Question:req.body.Question,id:req.instructor._id})
     }
     if(!check){
         let Q
@@ -332,10 +338,10 @@ exports.Add_Question_Manually = async (req, res) => {
         }
         let check
         if(req.body.hasOwnProperty('add_distructors')){
-            check = await this.checkQuestion(Type_of_Question,{Question:req.body.Question,distructor:req.body.add_distructors})
+            check = await this.checkQuestion(Type_of_Question,{Question:req.body.Question,distructor:req.body.add_distructors,id:req.instructor._id})
         }
         else{
-            check = await this.checkQuestion(Type_of_Question,{Question:req.body.Question})
+            check = await this.checkQuestion(Type_of_Question,{Question:req.body.Question,id:req.instructor._id})
         }
         if(check){
         if (Type_of_Question === 'mcq') {
