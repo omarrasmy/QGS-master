@@ -87,7 +87,6 @@ exports.DeleteQuestion = async (req, res) => {
 }
 exports.checkQuestion=async (type,question)=>{
     Q=await Question.find({Question:question.Question})
-    console.log(question.id)
     Qprivate=await Question.find({Question:question.Question,owner:question.id})
     if(Q.length >0){
         Q=JSON.parse(JSON.stringify(Q))
@@ -100,7 +99,6 @@ exports.checkQuestion=async (type,question)=>{
         for(var i=0 ; i<Qprivate.length;i++){
             QP.push(Qprivate[i])
         }
-        console.log(Qprivate)
         if(QP.length >0){
             if(type === 'complete'){
                 for(var i=0;i<QP.length;i++){
