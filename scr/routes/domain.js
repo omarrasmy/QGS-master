@@ -7,7 +7,7 @@ const DomainController=require('../Controllers/domain')
 const router=new express.Router()
 
 //Add new domain
-router.post('/domain',AdminAuth.AdminAuth,DomainController.AddDomain)
+router.post('/admin/domainrequests/:id/add',AdminAuth.AdminAuth,DomainController.AddDomain)
 
 //Remove domain
 router.delete('/domain/:id',AdminAuth.AdminAuth,DomainController.RemoveDomain)

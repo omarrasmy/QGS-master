@@ -3,6 +3,7 @@ const AdminAuth=require('../middleware/Auth')
 const AdminController=require('../Controllers/admin')
 const instructorController=require('../Controllers/instructor')
 const Notify=require('../middleware/Notify')
+const Requestcontroller=require('../Controllers/DomainRequests')
 
 const router= new express.Router()
 
@@ -52,6 +53,7 @@ router.get('/admin/instructors',AdminAuth.AdminAuth,Notify.GetNumberOfNotificati
 //delete profile pic
 router.post('/admin/profilepic/delete',AdminAuth.AdminAuth,Notify.GetNumberOfNotification,AdminController.deleteProfilepic)
 
-
+// select request 
+router.get('/admin/domainrequests/:id',AdminAuth.AdminAuth,Requestcontroller.selectRequest)
 
 module.exports=router

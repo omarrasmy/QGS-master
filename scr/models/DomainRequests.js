@@ -6,7 +6,8 @@ const RequestSchema=new mongoose.Schema({
     Requested_domain:{
         type:String,
         unique:true,
-        required:true
+        required:true,
+        trim:true
     },
    requester:{
        type:mongoose.Schema.Types.ObjectId,

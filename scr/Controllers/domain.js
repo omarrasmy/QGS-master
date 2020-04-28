@@ -1,9 +1,10 @@
 const Domain=require('../models/domain')
 const Notification = require('./Notifications')
+const Request= require('../models/DomainRequests')
 exports.ListDomains=async(req,res)=>{
     try{
         const domains=await Domain.find()
-        if(!domains){
+        if(domains.length===0){
             return res.status(404).send('No domains yet')
         }res.send(domains)
 
@@ -16,9 +17,20 @@ exports.ListDomains=async(req,res)=>{
 
 exports.AddDomain=async(req,res)=>{
     try{
-        const domain= new Domain(req.body)
+        let id= req.params.id
+        domainRequest= await Request.findOne({_id:id})
+        if(!domainRequest){
+            res.status(404).send('there is no such a request to be added')
+        }
+        const domain= new Domain({
+            domain_name:domainRequest.Requested_domain,
+            description:domainRequest.description
+        })
         await domain.save()
-        await Notification.addAdminNotifications(req.body.domain_name+' Have Been Added',domain._id)
+        await domainRequest.remove()
+        let name= req.body.domain_name
+        let idd= domain._id
+        await Notification.addAdminNotifications(name+' Have Been Added',idd)
         res.status(201).send(domain)
 
     }catch(e){

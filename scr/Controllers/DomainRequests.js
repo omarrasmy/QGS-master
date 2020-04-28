@@ -106,5 +106,18 @@ exports.deleteDomainRequest=async(req,res)=>{
         res.status(500).send(e)
     }
 }
+exports.selectRequest=async(req,res)=>{
+    try{
+     let id=req.params.id
+        const request= await Request.findOne({_id:id})
+        if(!request){
+          return  res.status(404).send('no request to be selected')
+        }
+        res.status(200).send(request)
 
+    }catch(e){
+        console.log(e)
+        res.status(500).send(e)
+    }
+}
 

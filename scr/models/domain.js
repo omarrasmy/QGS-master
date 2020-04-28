@@ -7,7 +7,8 @@ const DomainSchema = new mongoose.Schema({
        domain_name:{
           type:String,
           required:true,
-          unique:true
+          unique:true,
+          trim:true
        },description:{
            type:String,
            required:true
