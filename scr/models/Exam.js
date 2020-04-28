@@ -17,7 +17,6 @@ const ExamSchema= new mongoose.Schema({
     Questions:[{
         type:mongoose.Schema.Types.ObjectId,
         ref:'Question',
-        
     }],
     duration:{
         type:String,

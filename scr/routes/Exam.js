@@ -9,7 +9,7 @@ router.post('/exam/create',Auth.Auth,ExamContoller.Add_New_Exam)
 //Delete Exam by id
 router.delete('/exam/delete/:id',Auth.Auth,ExamContoller.Delete_Exam)
 //veiw past exams -List-
-router.get('/exam/view',Auth.Auth,ExamContoller.View_Past_Exams)
+router.post('/exam/view/:count/:verision',Auth.Auth,ExamContoller.View_Past_Exams)
 //selete exam by id
 router.get('/exam/view/:id',Auth.Auth,ExamContoller.Select_Exam)
 //select questions from past exams
