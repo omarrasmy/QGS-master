@@ -85,7 +85,7 @@ exports.DeleteQuestion = async (req, res) => {
 
     }
 }
-exports.checkQuestion=async (type,question)=>{
+exports.checkQuestion=async (type,question,ck)=>{
     Q=await Question.find({Question:question.Question})
     Qprivate=await Question.find({Question:question.Question,owner:question.id})
     if(Q.length >0){
@@ -96,9 +96,11 @@ exports.checkQuestion=async (type,question)=>{
                 QP.push(Q[i])
             }
         }
+        if(ck){
         for(var i=0 ; i<Qprivate.length;i++){
             QP.push(Qprivate[i])
         }
+    }
         if(QP.length >0){
             if(type === 'complete'){
                 for(var i=0;i<QP.length;i++){
@@ -180,10 +182,10 @@ exports.Add_Repeated_Questions= async (req,res)=>{
             return Array_of_distructors
         }
     if(req.body.hasOwnProperty('add_distructors')){
-        check = await this.checkQuestion(Type_of_Question,{Question:req.body.Question,distructor:req.body.add_distructors,id:req.instructor._id})
+        check = await this.checkQuestion(Type_of_Question,{Question:req.body.Question,distructor:req.body.add_distructors,id:req.instructor._id},true)
     }
     else{
-        check = await this.checkQuestion(Type_of_Question,{Question:req.body.Question,id:req.instructor._id})
+        check = await this.checkQuestion(Type_of_Question,{Question:req.body.Question,id:req.instructor._id},true)
     }
     if(!check){
         let Q
@@ -335,13 +337,18 @@ exports.Add_Question_Manually = async (req, res) => {
             return Array_of_distructors
         }
         let check
+        let check2
         if(req.body.hasOwnProperty('add_distructors')){
-            check = await this.checkQuestion(Type_of_Question,{Question:req.body.Question,distructor:req.body.add_distructors,id:req.instructor._id})
+            check = await this.checkQuestion(Type_of_Question,{Question:req.body.Question,distructor:req.body.add_distructors,id:req.instructor._id},false)
+            check2 = await this.checkQuestion(Type_of_Question,{Question:req.body.Question,distructor:req.body.add_distructors,id:req.instructor._id},true)
+
         }
         else{
-            check = await this.checkQuestion(Type_of_Question,{Question:req.body.Question,id:req.instructor._id})
+            check = await this.checkQuestion(Type_of_Question,{Question:req.body.Question,id:req.instructor._id},false)
+            check2 = await this.checkQuestion(Type_of_Question,{Question:req.body.Question,id:req.instructor._id},true)
+
         }
-        if(check){
+        if(check && check2){
         if (Type_of_Question === 'mcq') {
             
             // filling mcq Question Object
@@ -438,6 +445,10 @@ exports.Add_Question_Manually = async (req, res) => {
         }
             return res.status(201).send(m)
         }
+    }
+    else if (!check2){
+        res.status(300).send({'massage':'The Question is Already Found On Your Collection'})
+
     }
     else{
         res.status(300).send({'massage':'The Question is Already Found On QuestionBank'})
