@@ -91,12 +91,14 @@ exports.checkQuestion=async (type,question,ck)=>{
     if(Q.length >0){
         Q=JSON.parse(JSON.stringify(Q))
         let QP=[]
+        if(ck.ch1){
         for(var i =0 ;i<Q.length;i++){
             if(Q[i].public===true){
                 QP.push(Q[i])
             }
         }
-        if(ck){
+    }
+        if(ck.ch2){
         for(var i=0 ; i<Qprivate.length;i++){
             QP.push(Qprivate[i])
         }
@@ -182,10 +184,10 @@ exports.Add_Repeated_Questions= async (req,res)=>{
             return Array_of_distructors
         }
     if(req.body.hasOwnProperty('add_distructors')){
-        check = await this.checkQuestion(Type_of_Question,{Question:req.body.Question,distructor:req.body.add_distructors,id:req.instructor._id},true)
+        check = await this.checkQuestion(Type_of_Question,{Question:req.body.Question,distructor:req.body.add_distructors,id:req.instructor._id},{ch1:true,ch2:true})
     }
     else{
-        check = await this.checkQuestion(Type_of_Question,{Question:req.body.Question,id:req.instructor._id},true)
+        check = await this.checkQuestion(Type_of_Question,{Question:req.body.Question,id:req.instructor._id},{ch1:true,ch2:true})
     }
     if(!check){
         let Q
@@ -339,13 +341,13 @@ exports.Add_Question_Manually = async (req, res) => {
         let check
         let check2
         if(req.body.hasOwnProperty('add_distructors')){
-            check = await this.checkQuestion(Type_of_Question,{Question:req.body.Question,distructor:req.body.add_distructors,id:req.instructor._id},false)
-            check2 = await this.checkQuestion(Type_of_Question,{Question:req.body.Question,distructor:req.body.add_distructors,id:req.instructor._id},true)
+            check = await this.checkQuestion(Type_of_Question,{Question:req.body.Question,distructor:req.body.add_distructors,id:req.instructor._id},{ch1:true,ch2:false})
+            check2 = await this.checkQuestion(Type_of_Question,{Question:req.body.Question,distructor:req.body.add_distructors,id:req.instructor._id},{ch1:false,ch2:true})
 
         }
         else{
-            check = await this.checkQuestion(Type_of_Question,{Question:req.body.Question,id:req.instructor._id},false)
-            check2 = await this.checkQuestion(Type_of_Question,{Question:req.body.Question,id:req.instructor._id},true)
+            check = await this.checkQuestion(Type_of_Question,{Question:req.body.Question,id:req.instructor._id},{ch1:true,ch2:false})
+            check2 = await this.checkQuestion(Type_of_Question,{Question:req.body.Question,id:req.instructor._id},{ch1:false,ch2:true})
 
         }
         if(check && check2){
@@ -446,7 +448,7 @@ exports.Add_Question_Manually = async (req, res) => {
             return res.status(201).send(m)
         }
     }
-    else if (!check2){
+    else if (!check2 ){
         res.status(300).send({'massage':'The Question is Already Found On Your Collection'})
 
     }
