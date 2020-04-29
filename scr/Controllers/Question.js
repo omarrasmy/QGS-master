@@ -221,7 +221,7 @@ exports.Add_Repeated_Questions= async (req,res)=>{
                     Q2=await Question.findOne({Question:req.body.Question,kind:Type_of_Question,public:false,owner: req.instructor._id})
                     if(Q2  || QA){
                         console.log('in condition')
-                        return res.status(300).send({'massage':"you have already this Question in Your Collection"})      
+                        return res.status(301).send({'massage':"you have already this Question in Your Collection"})      
                           }
                     const mcq = new MCQ({
                         ...req.body,
@@ -260,7 +260,7 @@ exports.Add_Repeated_Questions= async (req,res)=>{
                     Q2=await Question.findOne({Question:req.body.Question,kind:Type_of_Question,public:false,owner: req.instructor._id})
                     if(Q2 || QA){
                         console.log('in condition')
-                        return res.status(300).send({'massage':"you have already this Question in Your Collection"})      
+                        return res.status(301).send({'massage':"you have already this Question in Your Collection"})      
                           }
                     let question
                     if(req.body.hasOwnProperty('add_distructors')){
@@ -449,11 +449,11 @@ exports.Add_Question_Manually = async (req, res) => {
         }
     }
     else if (!check2 ){
-        res.status(300).send({'massage':'The Question is Already Found On Your Collection'})
+        res.status(301).send({'massage':'The Question is Already Found On Your Collection'})
 
     }
     else{
-        res.status(300).send({'massage':'The Question is Already Found On QuestionBank'})
+        res.status(302).send({'massage':'The Question is Already Found On QuestionBank'})
     }
     } catch (e) {
         console.log(e)
