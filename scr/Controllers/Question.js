@@ -5,6 +5,7 @@ const TrueOrFalse = require('../models/TrueOrFalse')
 const DistructorController = require('../Controllers/distructor')
 const MCQ = require('../models/mcq')
 const DomainController = require('../Controllers/domain')
+const request=require('request')
 
 
 // edit Question
@@ -681,6 +682,37 @@ exports.select_Question_from_QuestionBank = async (req, res) => {
         res.status(500).send(e)
     }
 
+}
+
+exports.generateQuestions=(req,res)=>{
+    try{
+        let path= req.body.path
+        let type=req.params.type
+        //reading file
+         const data = fs.readFileSync(path).toString()
+         // construct object
+        let obj={
+            'Domain':req.params.domain,
+            'Text':data
+        }
+        if(req.body.hasOwnProperty('Diffculty')&&req.body.Diffculty!=''){
+            obj.Diffculty=req.body.Diffculty}
+
+        if(req.body.hasOwnProperty('Distructor')&&req.body.Distructor!=''){
+                obj.Distructor=req.body.Distructor}
+         //sending data to python
+         const Url='localhost:5000/GenerateQuestion/Complete'
+         request.post({url:Url,json:true,headers: {'content-type':'application/x-www-form-urlencoded'},body:"mes=heydude"
+        },(error,response,obj)=>{
+            console.log(response)
+
+
+         }
+
+    }catch(e){
+        console.log(e)
+        res.status(500).send(e)
+    }
 }
 
 

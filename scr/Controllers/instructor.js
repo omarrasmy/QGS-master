@@ -6,6 +6,10 @@ const Request = require('../models/DomainRequests')
 const Notification = require('./Notifications')
 var datetime = require('node-datetime');
 const Question = require('./Question')
+const request=require('request')
+var fs = require('fs');
+
+
 
 exports.Login = async (req, res) => {
 
@@ -106,25 +110,51 @@ exports.fetcProfilePicture = async (req, res) => {
     }
 }
 //upload resources
+var storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'uploads')
+      },
+    filename: function (req, file, cb) {
+      cb(null, file.fieldname + '-' + Date.now()+'.txt')
+    }
+  })
+
 exports.resource = multer({
-    dest: 'Resources',
+    storage:storage,
     limits: {
         fieldSize: 1000000
     },
+   
     fileFilter(req, file, cb) {
-        if (!file.originalname.match('pdf')) {
-            return cb(new Error('please upload a PDF or word File!'))
+        if (!file.originalname.match('txt')) {
+            return cb(new Error('please upload a text File!'))
         }
+        console.log(cb)
         cb(undefined, true)
-    }
+    }, filename: function(req, file, cb) {
+        console.log(file.filename)
+        cb(null, file.filename + 'txt')
+
+      }
+    
+
+
 })
 exports.enterResources = async (req, res) => {
-         let x= req.file.path
-         let path='.\\'+x+'.pdf'
+    
+         let des= req.file.destination
+         let filename=req.file.filename
+         let path= des+'/'+filename
+         //saving file
          req.instructor.uploaded_resource.push(path)
          req.instructor.save()
+         //reading file
+        //  const data = fs.readFileSync(path)
+        //  console.log(data.toString())
+
+        console.log(req.file)
         
-    res.send(x)
+    res.send(path)
 }
 exports.idPic = multer({
     fileFilter(req, file, cb) {
