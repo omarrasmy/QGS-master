@@ -8,43 +8,229 @@ const DomainController = require('../Controllers/domain')
 const request=require('request')
 
 
-// edit Question
-exports.EditQuestion = async (req, res) => {
-    const allowed = ['Question', 'Level', 'state', 'keyword', 'distructor', 'distructors']
-    const updates = Object.keys(req.body)
-    const isValidOperation = updates.every((update) => allowed.includes(update))
-    if (!isValidOperation) {
-        res.status(404).send({ error: 'Not exisited properity' })
+//see new edit exist
+exports.CheckEdited = async (myQuestion,id)=>{
+    let dumy
+    if(myQuestion.kind =='MCQ' ){
+        dumy = await MCQ.findOne({Question:myQuestion.Question,kind:myQuestion.kind,keyword:myQuestion.keyword,distructor:myQuestion.distructor,owner:id}).populate({
+            path: 'domain',
+            select: 'domain_name'
+        }).populate({
+            path: 'owner',
+            select: 'Email'
+        }).populate({
+            path: 'distructor',
+            select: 'distructor'
+        })
+    }
+    else if(myQuestion.kind == 'T/F'){
+        dumy = await TrueOrFalse.findOne({Question:myQuestion.Question,kind:myQuestion.kind,keyword:myQuestion.keyword,distructor:myQuestion.distructor,owner:id}).populate({
+            path: 'domain',
+            select: 'domain_name'
+        }).populate({
+            path: 'owner',
+            select: 'Email'
+        }).populate({
+            path: 'distructor',
+            select: 'distructor'
+        })
 
     }
+    else{
+        dumy = await Complete.findOne({Question:myQuestion.Question,kind:myQuestion.kind,keyword:myQuestion.keyword,owner:id}).populate({
+            path: 'domain',
+            select: 'domain_name'
+        }).populate({
+            path: 'owner',
+            select: 'Email'
+        })
+    }
+    return dumy
+}
+
+// edit Question
+exports.EditQuestion = async (req, res) => {
+   
     try {
+        
         const question = await Question.findOne({ _id: req.params.id })
+        let myQuestion
         if (!question) {
             return res.status(404).send('there is no such a question to be updated')
         }
-        if (req.body.distructor) {
-            if (question.kind === 'T/F') {
-                const distructor = await DistructorController.Edit_distructor(question.distructor, req.body.distructor)
-                req.body.distructor = distructors
-
-
-
-            }
+        let distructor=[]
+        let distcheck=[]
+        let check
+        let returned
+       if(question.kind == 'MCQ' || question.kind == 'T/F'){
+        for (var i=0;i<question.distructor.length;i++){
+           // console.log(question.distructor[i])
+            x=await Distructor.findById(question.distructor[i])
+           // console.log(x)
+            distructor.push(x)
+            distcheck.push(x.distructor)
         }
-        if (req.body.distructors) {
-            if (question.kind === 'MCQ') {
-                for (i = 0; i < req.body.distructors.length; i++) {
-                    const distructor = await DistructorController.Edit_distructor(question.distructors[i], req.body.distructors[i])
-                    req.body.distructors[i] = distructor
+        let Type_of_Question
+        if(question.kind == 'MCQ'){
+            Type_of_Question=question.kind.toLowerCase()
+        }
+        else{
+            Type_of_Question= 'trueorfalse'
+        }
+        check = await this.checkQuestion(Type_of_Question,{Question:question.Question,distructor:distcheck,id:req.instructor._id},{ch1:false,ch2:true})
+        }
+        else{
+        check = await this.checkQuestion(question.kind.toLowerCase(),{Question:question.Question,id:req.instructor._id},{ch1:false,ch2:true})
+        }
+            if(check){
+                if(question.kind == 'MCQ'){
+                     myQuestion= new MCQ({
+                        distructor:question.distructor,
+                        public:false,
+                        kind:question.kind,
+                        Level:question.Level,
+                        Question:question.Question,
+                        keyword:question.keyword,
+                        owner:req.instructor._id,
+                        domain:question.domain,
+                        time: Date.now(),
+                     })
+                    // await myQuestion.save()
+                }
+                else if(question.kind =='T/F'){
+                    myQuestion= new TrueOrFalse({
+                        distructor:question.distructor,
+                        public:false,
+                        kind:question.kind,
+                        Level:question.Level,
+                        Question:question.Question,
+                        keyword:question.keyword,
+                        owner:req.instructor._id,
+                        domain:question.domain,
+                        time: Date.now(),
+                        state:question.state
+                     })
+                   // await myQuestion.save()
+                }
+                else{
+                    myQuestion= new Complete({
+                        public:false,
+                        kind:question.kind,
+                        Level:question.Level,
+                        Question:question.Question,
+                        keyword:question.keyword,
+                        owner:req.instructor._id,
+                        domain:question.domain,
+                        time: Date.now(),
+                     })
+                    //await myQuestion.save()
+                }
+            }
+            else{
+                if(question.kind == 'MCQ'){
+                    myQuestion=await MCQ.findOne({owner:req.instructor._id,Question:question.Question})
+                }
+                else if (question.kind == 'T/F'){
+                    myQuestion=await TrueOrFalse.findOne({owner:req.instructor._id,Question:question.Question})
 
+                }
+                else if(question.kind == 'Complete'){
+                    myQuestion=await Complete.findOne({owner:req.instructor._id,Question:question.Question})
 
                 }
             }
+        
+
+        if(req.body.hasOwnProperty('NewDistructor') && req.body.NewDistructor !='' &&req.body.hasOwnProperty('OldDistructor') && req.body.OldDistructor !=''){
+            oldIdDistructor=distructor.find((e)=> req.body.OldDistructor === e.distructor)
+            await DistructorController.removeFromDistructor(myQuestion._id,oldIdDistructor._id)
+            myQuestion.distructor.remove(oldIdDistructor._id)
+            newIdDist=await DistructorController.addDistructor(req.body.NewDistructor)
+            myQuestion.distructor.push(newIdDist)
+            dumy = await this.CheckEdited({Question:myQuestion.Question,kind:myQuestion.kind,keyword:myQuestion.keyword,distructor:myQuestion.distructor},req.instructor._id)
+            if(dumy){
+                return res.status(300).send({massage:"question is already in your collection",question:dumy})
+            }
+            await DistructorController.LinkDistructorToQuestion(newIdDist,myQuestion._id)
+            await myQuestion.save()
+        }
+        else if(req.body.hasOwnProperty('Question') && req.body.Question !=''){
+            //check if New edit is al ready found in the collection
+            let dumy
+            if(myQuestion.kind =='MCQ' || myQuestion.kind == 'T/F'){
+            dumy = await this.CheckEdited({Question:req.body.Question,kind:myQuestion.kind,keyword:myQuestion.keyword,distructor:myQuestion.distructor},req.instructor._id)
+            }
+            else{
+                dumy = await this.CheckEdited({Question:req.body.Question,kind:myQuestion.kind,keyword:myQuestion.keyword},req.instructor._id)
+            }
+            if(dumy){
+                return res.status(300).send({massage:"question is already in your collection",question:dumy})
+            }
+            myQuestion.Question=req.body.Question
+            await myQuestion.save()
+            if(myQuestion.kind =='MCQ' || myQuestion.kind=='T/F'){
+                for(var i = 0;i<myQuestion.distructor.length;i++){
+                    await DistructorController.LinkDistructorToQuestion(myQuestion.distructor[i],myQuestion._id)
+                }
+            }
+        }
+        else if(req.body.hasOwnProperty('keyword') && req.body.keyword!=''){
+            //htb2a na2sa 7ta b3d rabt l python
+            myQuestion.keyword=req.body.keyword
+            let dumy
+            if(myQuestion.kind =='MCQ' || myQuestion.kind == 'T/F'){
+            dumy = await this.CheckEdited({Question:myQuestion.Question,kind:myQuestion.kind,keyword:req.body.keyword,distructor:myQuestion.distructor},req.instructor._id)
+        }
+            else{
+                dumy = await this.CheckEdited({Question:myQuestion.Question,kind:myQuestion.kind,keyword:req.body.keyword},req.instructor._id)
+            }
+            if(dumy){
+                return res.status(300).send({massage:"question is already in your collection",question:dumy})
+            }
+            await myQuestion.save()
+        }
+        if(myQuestion.kind == 'MCQ'){
+            returned = await MCQ.findOne({ _id: myQuestion._id }).populate({
+                path: 'domain',
+                select: 'domain_name'
+            }).populate({
+                path: 'owner',
+                select: 'Email'
+            }).populate({
+                path: 'distructor',
+                select: 'distructor'
+            })
+        }
+        else if(myQuestion.kind=='T/F'){
+            returned = await TrueOrFalse.findOne({ _id: myQuestion._id }).populate({
+                path: 'domain',
+                select: 'domain_name'
+            }).populate({
+                path: 'owner',
+                select: 'Email'
+            }).populate({
+                path: 'distructor',
+                select: 'distructor'
+            })
+        
+        }
+        else if(myQuestion.kind == 'Complete'){
+            returned = await Complete.findOne({ _id: myQuestion._id }).populate({
+                path: 'domain',
+                select: 'domain_name'
+            }).populate({
+                path: 'owner',
+                select: 'Email'
+            }).populate({
+                path: 'distructor',
+                select: 'distructor'
+            })
+        }
+        else{
+            res.status(300).send({'massage':"Can't Edit Right now"})
         }
 
-        updates.forEach((update) => question[update] = req.body[update])
-        question.save()
-        res.send(question)
+        res.status(202).send(returned)
     } catch (e) {
         console.log(e)
         res.status(500).send(e)
@@ -320,6 +506,9 @@ exports.Add_Repeated_Questions= async (req,res)=>{
     }
     return res.status(500).send({'massage':'no Question At QuestionBank as this'})
 }
+
+//Edite Question Or Distructor
+exports.Edit
 
 //Add Question Manually
 exports.Add_Question_Manually = async (req, res) => {
@@ -703,7 +892,7 @@ exports.generateQuestions=(req,res)=>{
          //sending data to python
          const Url='localhost:5000/GenerateQuestion/Complete'
          request.post({url:Url,json:true,headers: {'content-type':'application/x-www-form-urlencoded'},body:"mes=heydude"
-        },(error,response,obj)=>{
+        }),(error,response,obj)=>{
             console.log(response)
 
 

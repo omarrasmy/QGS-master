@@ -72,13 +72,18 @@ exports.LinkDistructorToQuestion=async(distructorid,Question_id)=>{
     if (!distructor){
         throw new Error('there is no such a distructor')
     }
+    x=distructor.Question_id.find((e)=>e.toString()===Question_id.toString())
+    if(!x){
     distructor.Question_id.push(Question_id)
    await distructor.save()
-
-
+    }
+    else{
+        console.log('in')
+    }
 }
 //remove question from distructor
 exports.removeFromDistructor=async(question_id ,distructor_id)=>{
+    try{
     const distructor =await Distructor.findOne({_id:distructor_id})
     if(!distructor){
         throw new Error('there is no such a distructor')
@@ -88,6 +93,9 @@ exports.removeFromDistructor=async(question_id ,distructor_id)=>{
     if(distructor.Question_id.length===0){
         await distructor.remove()
     }
+}catch(e){
+    console.log(e)
+}
     
 }
 //Edit distructor
@@ -100,7 +108,6 @@ exports.Edit_distructor=async(_id,new_distructor )=>{
     dis.distructor=new_distructor
      await dis.save()
      return dis._id
-
-
 }
+
 //Generate distructors
