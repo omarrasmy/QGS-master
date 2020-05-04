@@ -161,7 +161,40 @@ exports.View_Past_Exams=async (req,res)=>{
                     return res.status(300).send({"massage":"The Date Is Out Of Range"})
                 }
             }
-            FilterExam=instructor.listSpecificItems(Count, verision, FilterExam)
+            if(req.body.Search.hasOwnProperty('StartDuration') && req.body.Search.StartDate!='' && req.body.Search.hasOwnProperty('EndDuration') && req.body.Search.EndDate!=''){
+                FilterExam=FilterExam.filter((e)=>{
+                    if(e.duration >=Number(req.body.Search.StartDuration) && e.duration <= Number(req.body.Search.EndDuration)){
+                        return e
+                    }
+                    console.log(FilterExam)
+                })
+                if(FilterExam.length === 0){
+                    return res.status(300).send({"massage":"The Duration Is Out Of Range"})
+                }
+            }
+            if(req.body.Search.hasOwnProperty('university') && req.body.Search.university!=''){
+                FilterExam=FilterExam.filter((e)=>{
+                    if(e.university === req.body.Search.university){
+                        return e
+                    }
+                    console.log(FilterExam)
+                })
+                if(FilterExam.length === 0){
+                    return res.status(300).send({"massage":"The University Is Out Of Range"})
+                }
+            }
+            if(req.body.Search.hasOwnProperty('faculty') && req.body.Search.faculty!=''){
+                FilterExam=FilterExam.filter((e)=>{
+                    if(e.faculty === req.body.Search.faculty){
+                        return e
+                    }
+                    console.log(FilterExam)
+                })
+                if(FilterExam.length === 0){
+                    return res.status(300).send({"massage":"The faculty Is Out Of Range"})
+                }
+            }
+                FilterExam=instructor.listSpecificItems(Count, verision, FilterExam)
             let Final=[]
             for(var i =0;i<FilterExam.length;i++){
                 Myexam=await this.GetExamsQuestions(FilterExam[i].Questions)
@@ -207,6 +240,7 @@ exports.Select_Exam=async(req,res)=>{
         res.status(500).send(e)
     }
 }
+
 // Delete Exam
 exports.Delete_Exam=async(req,res)=>{
     try{

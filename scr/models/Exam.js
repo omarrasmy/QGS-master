@@ -19,7 +19,7 @@ const ExamSchema= new mongoose.Schema({
         ref:'Question',
     }],
     duration:{
-        type:String,
+        type:Number,
         trim:true,
         required:true
     },
