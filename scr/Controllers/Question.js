@@ -154,6 +154,26 @@ exports.EditQuestion = async (req, res) => {
             await DistructorController.LinkDistructorToQuestion(newIdDist,myQuestion._id)
             await myQuestion.save()
         }
+        else if(req.body.hasOwnProperty('NewDistructor') && req.body.NewDistructor !=''){
+            newIdDist=await DistructorController.addDistructor(req.body.NewDistructor)
+            myQuestion.distructor.push(newIdDist)
+            dumy = await this.CheckEdited({Question:myQuestion.Question,kind:myQuestion.kind,keyword:myQuestion.keyword,distructor:myQuestion.distructor},req.instructor._id)
+            if(dumy){
+                return res.status(300).send({massage:"question is already in your collection",question:dumy})
+            }
+            await DistructorController.LinkDistructorToQuestion(newIdDist,myQuestion._id)
+            await myQuestion.save()
+        }
+        else if (req.body.hasOwnProperty('OldDistructor') && req.body.OldDistructor !=''){
+            oldIdDistructor=distructor.find((e)=> req.body.OldDistructor === e.distructor)
+            await DistructorController.removeFromDistructor(myQuestion._id,oldIdDistructor._id)
+            myQuestion.distructor.remove(oldIdDistructor._id)
+            dumy = await this.CheckEdited({Question:myQuestion.Question,kind:myQuestion.kind,keyword:myQuestion.keyword,distructor:myQuestion.distructor},req.instructor._id)
+            if(dumy){
+                return res.status(300).send({massage:"question is already in your collection",question:dumy})
+            }
+            await myQuestion.save()
+        }
         else if(req.body.hasOwnProperty('Question') && req.body.Question !=''){
             //check if New edit is al ready found in the collection
             let dumy
