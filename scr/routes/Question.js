@@ -31,4 +31,8 @@ router.post('/questionbank/add',Auth,QuestionController.Add_Questions_to_QB)
 
 router.post('/questionbank/:domain_id/:id',Auth,QuestionController.select_Question_from_QuestionBank)
 
+//generate Question
+router.post('/GenerateQuestion/:domain',Auth,QuestionController.generateQuestions)
+
+
 module.exports=router

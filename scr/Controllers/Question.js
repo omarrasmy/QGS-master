@@ -6,7 +6,7 @@ const DistructorController = require('../Controllers/distructor')
 const MCQ = require('../models/mcq')
 const DomainController = require('../Controllers/domain')
 const request=require('request')
-
+const fs=require('fs')
 
 //see new edit exist
 exports.CheckEdited = async (myQuestion,id)=>{
@@ -893,7 +893,7 @@ exports.select_Question_from_QuestionBank = async (req, res) => {
 
 }
 
-exports.generateQuestions=(req,res)=>{
+exports.generateQuestions=async(req,res)=>{
     try{
         let path= req.body.path
         let type=req.params.type
@@ -908,16 +908,18 @@ exports.generateQuestions=(req,res)=>{
             obj.Diffculty=req.body.Diffculty}
 
         if(req.body.hasOwnProperty('Distructor')&&req.body.Distructor!=''){
-                obj.Distructor=req.body.Distructor}
+                obj.Distructor=Number(req.body.Distructor)
+            }
          //sending data to python
-         const Url='localhost:5000/GenerateQuestion/Complete'
-         request.post({url:Url,json:true,headers: {'content-type':'application/x-www-form-urlencoded'},body:"mes=heydude"
-        }),(error,response,obj)=>{
-            console.log(response)
-
-
-         }
-
+         const Url='http://localhost:5000/GenerateQuestion/Complete'
+         await request.post({url:Url,json:true,body:obj },(error,response)=>{
+            if(error){
+                return res.status(404).send(error)
+            }
+            else{
+                return res.status(200).send(response)
+            }
+         })
     }catch(e){
         console.log(e)
         res.status(500).send(e)
