@@ -4,7 +4,7 @@ const instructorController=require('../Controllers/instructor')
 const router = new express.Router()
 const Notify=require('../middleware/Notify')
 const multer=require('multer')
-
+const QuestionController = require('../Controllers/Question')
 // send Account request 
 router.post('/instructor/signup', instructorController.idPic.single('idPic'),instructorController.Send_SingnUp_Request)
 
@@ -45,7 +45,8 @@ router.patch('/instructor/editme:password',Auth.Auth,Notify.GetNumberOfNotificat
 
 router.post('/instructor/getmyQuestions/:count/:verision',Auth.Auth,instructorController.getMyQuestions)
 
-
+//Add Questions
+router.post('/instructor/AddQuestion',Auth.Auth,QuestionController.Add_Questions)
  
 
 

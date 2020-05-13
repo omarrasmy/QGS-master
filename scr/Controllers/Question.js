@@ -297,6 +297,7 @@ exports.checkQuestion=async (type,question,ck)=>{
     Qprivate=await Question.find({Question:question.Question,owner:question.id})
     if(Q.length >0){
         Q=JSON.parse(JSON.stringify(Q))
+        Qprivate=JSON.parse(JSON.stringify(Qprivate))
         let QP=[]
         if(ck.ch1){
         for(var i =0 ;i<Q.length;i++){
@@ -527,8 +528,228 @@ exports.Add_Repeated_Questions= async (req,res)=>{
     return res.status(500).send({'massage':'no Question At QuestionBank as this'})
 }
 
-//Edite Question Or Distructor
-exports.Edit
+
+//Add questions
+exports.Add_Questions=async (req,res)=>{
+    const domain = await DomainController.Selectdomain(req.body.domain_name)
+    let question1=[]
+    let question2=[]
+    let question3=[]
+    try{
+    for(var i =0 ; i<req.body.Question.length ;i++){
+    const Array_of_distructors = []
+    const Add_Distructors = async () => {
+        const dis = req.body.add_distructors[i]
+        for (n = 0; n <req.body.add_distructors[i].length; n++) {
+            const distructor = await DistructorController.addDistructor(dis[n])
+            Array_of_distructors.push(distructor)
+        }
+
+        return Array_of_distructors
+    }
+    let check
+    let check2
+        if(req.body.hasOwnProperty('add_distructors')){
+            if(req.body.add_distructors.hasOwnProperty(i.toString())){
+            check = await this.checkQuestion(req.body.kind[i],{Question:req.body.Question[i],distructor:req.body.add_distructors[i],id:req.instructor._id},{ch1:true,ch2:false})
+            check2 = await this.checkQuestion(req.body.kind[i],{Question:req.body.Question[i],distructor:req.body.add_distructors[i],id:req.instructor._id},{ch1:false,ch2:true})
+            }
+            else{
+                check = await this.checkQuestion(req.body.kind[i],{Question:req.body.Question[i],id:req.instructor._id},{ch1:true,ch2:false})
+                check2 = await this.checkQuestion(req.body.kind[i],{Question:req.body.Question[i],id:req.instructor._id},{ch1:false,ch2:true})
+            }
+        }
+        else{
+            check = await this.checkQuestion(req.body.kind[i],{Question:req.body.Question[i],id:req.instructor._id},{ch1:true,ch2:false})
+            check2 = await this.checkQuestion(req.body.kind[i],{Question:req.body.Question[i],id:req.instructor._id},{ch1:false,ch2:true})
+        }
+        if(check2 && check){
+            if (req.body.kind[i] === 'mcq') {
+                // filling mcq Question Object
+                const mcq = new MCQ({
+                    Question:req.body.Question[i],
+                    Level:req.body.Level[i],
+                    public:req.body.public[i],
+                    keyword:req.body.keyword[i],
+                    kind:'MCQ',
+                    distructor: await Add_Distructors(),
+                    time: Date.now(),
+                    owner: req.instructor._id,
+                    domain
+    
+                })
+                // saving question in database
+                await mcq.save()
+    
+                // Linking distructors to that question
+                Array_of_distructors.forEach((d) => {
+                    DistructorController.LinkDistructorToQuestion(d, mcq._id)
+                })
+                question1.push(JSON.parse(JSON.stringify(mcq)))
+                // retrun question after populating it
+    
+            }
+            if (req.body.kind[i] === 'complete') {
+    
+                const complete = new Complete({
+                    Question:req.body.Question[i],
+                    Level:req.body.Level[i],
+                    public:req.body.public[i],
+                    keyword:req.body.keyword[i],
+                    kind:'Complete',
+                    time: Date.now(),
+                    owner: req.instructor._id,
+                    domain,
+                })
+                await complete.save()
+                question1.push(JSON.parse(JSON.stringify(complete)))
+
+            }
+    
+            if (req.body.kind[i] === 'trueorfalse') {
+                let question
+                if(req.body.hasOwnProperty('add_distructors')){
+                question = new TrueOrFalse({
+                    Question:req.body.Question[i],
+                    Level:req.body.Level[i],
+                    public:req.body.public[i],
+                    keyword:req.body.keyword[i],
+                    kind:'T/F',
+                    state:req.body.state[i],
+                    distructor:  await Add_Distructors(),
+                    time: Date.now(),
+                    owner: req.instructor._id,
+                    domain
+    
+                })
+                await DistructorController.LinkDistructorToQuestion(question.distructor, question._id)
+            }
+            else{
+                question = new TrueOrFalse({
+                    Question:req.body.Question[i],
+                    Level:req.body.Level[i],
+                    public:req.body.public[i],
+                    keyword:req.body.keyword[i],
+                    kind:'T/F',
+                    state:req.body.state[i],
+                    time: Date.now(),
+                    owner: req.instructor._id,
+                    domain
+                })
+            }
+                await question.save()
+            question1.push(JSON.parse(JSON.stringify(question)))
+            }
+        }
+       else if(!check2){
+           let Qprivate
+        if (req.body.kind[i] === 'mcq') {
+            Qprivate=await MCQ.findOne({Question:req.body.Question[i],owner:req.instructor._id})
+        }
+        else if(req.body.kind[i] === 'complete'){
+            Qprivate=await Complete.findOne({Question:req.body.Question[i],owner:req.instructor._id})
+
+        }
+        else{
+            Qprivate=await TrueOrFalse.findOne({Question:req.body.Question[i],owner:req.instructor._id})
+        }
+        if(Qprivate){
+            Qprivate.time=Date.now()
+            await Qprivate.save()
+            question3.push(JSON.parse(JSON.stringify(Qprivate)))
+        }
+        }
+        else if (!check){
+            if (req.body.kind[i] === 'mcq') {
+            
+                // filling mcq Question Object
+                const mcq = new MCQ({
+                    Question:req.body.Question[i],
+                    Level:req.body.Level[i],
+                    public:false,
+                    keyword:req.body.keyword[i],
+                    kind:'MCQ',
+                    distructor: await Add_Distructors(),
+                    time: Date.now(),
+                    owner: req.instructor._id,
+                    domain
+    
+                })
+                // saving question in database
+                await mcq.save()
+    
+                // Linking distructors to that question
+                Array_of_distructors.forEach((d) => {
+                    DistructorController.LinkDistructorToQuestion(d, mcq._id)
+                })
+                question2.push(JSON.parse(JSON.stringify(mcq)))
+                // retrun question after populating it
+    
+            }
+            if (req.body.kind[i] === 'complete') {
+    
+                const complete = new Complete({
+                    Question:req.body.Question[i],
+                    Level:req.body.Level[i],
+                    public:false,
+                    keyword:req.body.keyword[i],
+                    kind:'Complete',
+                    time: Date.now(),
+                    owner: req.instructor._id,
+                    domain,
+                })
+                await complete.save()
+                question2.push(JSON.parse(JSON.stringify(complete)))
+
+            }
+    
+            if (req.body.kind[i] === 'trueorfalse') {
+                let question
+                if(req.body.hasOwnProperty('add_distructors')){
+                question = new TrueOrFalse({
+                    Question:req.body.Question[i],
+                    Level:req.body.Level[i],
+                    public:false,
+                    keyword:req.body.keyword[i],
+                    kind:'T/F',
+                    state:req.body.state[i],
+                    distructor:  await Add_Distructors(),
+                    time: Date.now(),
+                    owner: req.instructor._id,
+                    domain
+    
+                })
+                await DistructorController.LinkDistructorToQuestion(question.distructor, question._id)
+
+            }
+            else{
+                question = new TrueOrFalse({
+                    Question:req.body.Question[i],
+                    Level:req.body.Level[i],
+                    public:false,
+                    keyword:req.body.keyword[i],
+                    kind:'T/F',
+                    state:req.body.state[i],
+                    time: Date.now(),
+                    owner: req.instructor._id,
+                    domain
+                })
+            }
+                await question.save()
+            question2.push(JSON.parse(JSON.stringify(question)))
+            }
+
+        }
+        else{
+            continue
+        }
+    }
+    res.status(200).send({0:question1,1:question2,3:question3})
+}
+catch(e){
+    res.status(500).send(e)
+}
+}
 
 //Add Question Manually
 exports.Add_Question_Manually = async (req, res) => {
@@ -912,7 +1133,7 @@ exports.generateQuestions=async(req,res)=>{
             }
          //sending data to python
          const Url='http://localhost:5000/GenerateQuestion/Complete'
-         await request.post({url:Url,json:true,body:obj },(error,response)=>{
+         await request.post({url:Url,json:true,body:"" },(error,response)=>{
             if(error){
                 return res.status(404).send(error)
             }
